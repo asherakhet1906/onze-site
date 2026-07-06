@@ -96,7 +96,7 @@
        space) — on some devices/text-size settings that height is tall enough to push the top
        edge back up past the padding reservation below, right into the header/notch again.
        flex-start anchors the top edge at a fixed, content-independent offset instead. */
-    main{ align-items:flex-start; padding-top:calc(112px + env(safe-area-inset-top)); padding-bottom:40px; }
+    main{ align-items:flex-start; padding-top:calc(160px + env(safe-area-inset-top)); padding-bottom:40px; }
   }
 
   /* glass modal — shared by federations deck + players teaser */
@@ -211,14 +211,29 @@
 <div id="intro"><img src="assets/brand/logo/icon/onze-icon-white.png" alt="ONZE"></div>
 
 <div class="quad-img">
-  <video autoplay muted loop playsinline poster="assets/imagery/hero/hero-duo-loop-v2-poster.jpg" aria-hidden="true">
-    <source src="assets/imagery/hero/video/hero-locs-mobile-loop.webm" type="video/webm" media="(max-width:820px)">
-    <source src="assets/imagery/hero/video/hero-locs-mobile-loop.mp4" type="video/mp4" media="(max-width:820px)">
-    <source src="assets/imagery/hero/video/hero-duo-loop-v2.webm" type="video/webm">
-    <source src="assets/imagery/hero/video/hero-duo-loop-v2.mp4" type="video/mp4">
-  </video>
+  <video id="heroVideo" autoplay muted loop playsinline aria-hidden="true"></video>
 </div>
-<script>if(matchMedia('(max-width:820px)').matches){document.querySelector('.quad-img video').poster='assets/imagery/hero/hero-locs-mobile-poster.jpg';}</script>
+<script>
+(function(){
+  // JS-driven source selection, not <source media> — Safari/WebKit has long-standing bugs
+  // picking the wrong <source> based on its media attribute (this is exactly how an iPhone
+  // ended up playing the desktop AI duo video instead of the mobile real-footage clip; Android
+  // Chrome evaluated the same markup correctly). A single matchMedia check in JS is reliable
+  // everywhere.
+  const isMobile = matchMedia('(max-width:820px)').matches;
+  const base = isMobile ? 'assets/imagery/hero/video/hero-locs-mobile-loop' : 'assets/imagery/hero/video/hero-duo-loop-v2';
+  const poster = isMobile ? 'assets/imagery/hero/hero-locs-mobile-poster.jpg' : 'assets/imagery/hero/hero-duo-loop-v2-poster.jpg';
+  const video = document.getElementById('heroVideo');
+  video.poster = poster;
+  ['webm','mp4'].forEach(ext => {
+    const s = document.createElement('source');
+    s.src = base + '.' + ext;
+    s.type = 'video/' + ext;
+    video.appendChild(s);
+  });
+  video.load();
+})();
+</script>
 <div class="cross"><span class="dot"></span></div>
 
 <header>
