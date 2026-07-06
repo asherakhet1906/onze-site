@@ -124,8 +124,7 @@
     color:var(--onze-on-dark-mute); font-size:18px; line-height:1; cursor:pointer;
     transition:color .2s ease, border-color .2s ease, background .2s ease; }
   .glass-close:hover{ color:var(--onze-accent); border-color:rgba(255,31,107,.5); background:rgba(255,31,107,.1); }
-  .deck-frame{ position:relative; z-index:1; width:100%; height:100%; border:0; display:block; background:transparent;
-    -webkit-overflow-scrolling:touch; touch-action:pan-y; }
+  .embed-frame{ position:relative; z-index:1; width:100%; height:100%; border:0; display:block; background:transparent; }
   @media (max-width:820px){ .glass-panel{ width:94vw; height:80vh; border-radius:14px; } }
 
   /* contact form */
@@ -164,18 +163,6 @@
   .cf-status.err{ color:#FF6B6B; }
   @media (max-width:560px){ .cf-row{ flex-direction:column; gap:0; } }
 
-  /* players teaser content */
-  .teaser{ position:relative; z-index:1; width:100%; height:100%; background:#000;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; overflow:hidden; }
-  .teaser video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.45; z-index:0; }
-  .teaser::after{ content:""; position:absolute; inset:0; z-index:1;
-    background:radial-gradient(ellipse at center, rgba(0,0,0,.30) 0%, rgba(0,0,0,.82) 80%); }
-  .teaser img{ width:104px; height:auto; opacity:.95; position:relative; z-index:2; }
-  .teaser-msg{ position:relative; z-index:2; }
-  .teaser-msg{ display:flex; align-items:center; gap:12px; font-size:12px; letter-spacing:.24em;
-    text-transform:uppercase; font-weight:700; color:var(--onze-on-dark-mute); }
-  .teaser-msg::before{ content:""; width:26px; height:2px; background:var(--onze-accent); }
-
   main{ position:relative; z-index:5; height:100%; display:flex; align-items:center; padding:0 clamp(28px,5vw,64px); }
   .col{ max-width:600px; position:relative; }
   @keyframes rise{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:none; } }
@@ -206,7 +193,7 @@
 
   @media (prefers-reduced-motion: reduce){
     #intro{ display:none; } .col,.foot,.quad-img{ animation:none; opacity:1; transform:none; } .quad-img::before{ animation:none; transform:scale(1.12); }
-    .quad-img video, .teaser video{ display:none; }
+    .quad-img video{ display:none; }
   }
   @media (max-width:560px){
     .cross::before{ display:none; }
@@ -241,13 +228,13 @@
 </header>
 
 <nav class="mnav" id="mnav" aria-hidden="true">
-  <a href="#players" id="mPlayers">Players</a>
+  <a href="players.html" id="mPlayers">Players</a>
   <a href="decks/seychelles/onze-seychelles-edit.html" id="mFederations">Federations</a>
   <a href="#contact" id="mContact">Contact</a>
   <div class="mnav-cities">Amsterdam · Willemstad · Paramaribo · Rabat</div>
 </nav>
 
-<a class="top-link players" href="#players">Players</a>
+<a class="top-link players" href="players.html">Players</a>
 <a class="top-link federations" href="decks/seychelles/onze-seychelles-edit.html">Federations</a>
 
 <main>
@@ -269,7 +256,7 @@
   <div class="glass-modal-backdrop" data-close></div>
   <div class="glass-panel" role="dialog" aria-modal="true" aria-label="ONZE × Seychelles federation deck">
     <button class="glass-close" type="button" aria-label="Close" data-close>&times;</button>
-    <iframe class="deck-frame" title="ONZE × Seychelles — Collective XI"></iframe>
+    <iframe class="embed-frame" title="ONZE × Seychelles — Collective XI"></iframe>
   </div>
 </div>
 
@@ -277,14 +264,7 @@
   <div class="glass-modal-backdrop" data-close></div>
   <div class="glass-panel" role="dialog" aria-modal="true" aria-label="Players">
     <button class="glass-close" type="button" aria-label="Close" data-close>&times;</button>
-    <div class="teaser">
-      <video autoplay muted loop playsinline poster="assets/imagery/hero/video/ball-macro-poster.jpg" aria-hidden="true">
-        <source src="assets/imagery/hero/video/ball-macro-loop.webm" type="video/webm">
-        <source src="assets/imagery/hero/video/ball-macro-loop.mp4" type="video/mp4">
-      </video>
-      <img src="assets/brand/logo/icon/onze-icon-white.png" alt="ONZE">
-      <div class="teaser-msg"><span class="teaser-text">Coming soon.</span></div>
-    </div>
+    <iframe class="embed-frame" title="ONZE — Players"></iframe>
   </div>
 </div>
 
@@ -347,24 +327,34 @@
     };
     const close = () => { panel.classList.remove('settled'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); };
     triggers.forEach(t => t.addEventListener('click', e=>{
-      if(guard && !guard()) return; // let the link navigate normally instead of opening the modal
+      if(guard && !guard()) return; // mobile: let the link navigate to the real page instead
       e.preventDefault(); closeMenu(); open();
     }));
     modal.querySelectorAll('[data-close]').forEach(el=> el.addEventListener('click', close));
     addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
   }
+  // Desktop: Federations/Players open in an iframe-in-modal (nice in-context viewing, and each
+  // page's own iframe has nothing that needs to scroll further than the modal already fits).
+  // Mobile: both navigate to the real page directly instead. iOS Safari has a stubborn,
+  // never-fully-resolved bug where touch-scroll doesn't reliably reach content nested inside an
+  // iframe inside a modal — several targeted CSS/JS mitigations didn't fix it in practice, so
+  // mobile sidesteps the whole bug class rather than fight it further. Same guard, same pattern,
+  // for both sections — consistency was the whole point.
+  const isMobile = () => matchMedia('(max-width:820px)').matches;
+
   const deckModal = document.getElementById('deckModal');
-  const frame = deckModal.querySelector('.deck-frame');
+  const deckFrame = deckModal.querySelector('.embed-frame');
   const fedLink = document.querySelector('.top-link.federations');
   wireModal(deckModal, [fedLink, document.getElementById('mFederations')],
-    () => { if(!frame.src) frame.src = fedLink.getAttribute('href'); },
-    () => !matchMedia('(max-width:820px)').matches);
-    // ^ mobile: let "Federations" navigate to the deck as a real page instead of opening the
-    // iframe-in-modal. iOS Safari has a stubborn, still-unresolved bug where touch-scroll gestures
-    // don't reliably reach a scrollable iframe nested inside a modal — several targeted CSS/JS
-    // mitigations didn't fix it in practice, so mobile sidesteps the whole bug class: the deck's
-    // own native page scroll always works since there's no nested iframe involved at all.
-    // Desktop keeps the nicer glass-modal iframe experience.
+    () => { if(!deckFrame.src) deckFrame.src = fedLink.getAttribute('href'); },
+    () => !isMobile());
+
+  const playersModal = document.getElementById('playersModal');
+  const playersFrame = playersModal.querySelector('.embed-frame');
+  const playersLink = document.querySelector('.top-link.players');
+  wireModal(playersModal, [playersLink, document.getElementById('mPlayers')],
+    () => { if(!playersFrame.src) playersFrame.src = playersLink.getAttribute('href'); },
+    () => !isMobile());
 
   // contact form modal
   const contactModal = document.getElementById('contactModal');
@@ -400,48 +390,7 @@
     }
   });
 
-  const playersModal = document.getElementById('playersModal');
-  const playersLink = document.querySelector('.top-link.players');
-  const teaserText = playersModal.querySelector('.teaser-text');
-  const teaserFull = teaserText.textContent;
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const sleep = ms => new Promise(r=>setTimeout(r, ms));
-  const delayFor = ch => { if('.!?'.includes(ch)) return 260; if(',;:—'.includes(ch)) return 130; return 30 + Math.random()*30; };
-  const TYPO_AT = 5, TYPO_CHAR = 'h';   // "Comin" + stray "h" before correcting to "Coming"
-  let openToken = 0;
-  async function typeTeaser(token){
-    let shown = '';
-    const render = () => { teaserText.innerHTML = esc(shown) + '<span class="caret"></span>'; };
-    for(let i=0; i<teaserFull.length; i++){
-      if(token !== openToken) return;
-      if(i === TYPO_AT){
-        shown += TYPO_CHAR; render();
-        await sleep(260);
-        if(token !== openToken) return;
-        shown = shown.slice(0,-1);
-        await sleep(90);
-        render();
-        await sleep(140);
-        if(token !== openToken) return;
-      }
-      shown += teaserFull[i]; render();
-      await sleep(delayFor(teaserFull[i]));
-    }
-  }
-  wireModal(playersModal, [playersLink, document.getElementById('mPlayers')], () => {
-    const token = ++openToken;
-    if(reduceMotion){ teaserText.textContent = teaserFull; return; }
-    teaserText.style.visibility = 'hidden';
-    teaserText.textContent = '';
-    setTimeout(()=>{ teaserText.style.visibility = 'visible'; typeTeaser(token); }, 1000);
-  });
-  // deep link from another page (e.g. the deck's "Players" link) — reuse the same open path
-  if(location.hash === '#players') playersLink.click();
-
-  // logo = "home": closes whatever modal is open and returns to the clean landing view. Needed
-  // because a deep link (like the deck's Players link) can land here with a modal already open,
-  // and there was previously no way to escape it back to the base page.
+  // logo = "home": closes whatever modal is open, returning to the clean landing view.
   document.getElementById('homeLogo').addEventListener('click', () => {
     [deckModal, playersModal, contactModal].forEach(m => {
       if(!m.classList.contains('open')) return;
