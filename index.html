@@ -275,7 +275,7 @@
   <div class="glass-modal-backdrop" data-close></div>
   <div class="glass-panel contact-panel" role="dialog" aria-modal="true" aria-label="Contact ONZE">
     <button class="glass-close" type="button" aria-label="Close" data-close>&times;</button>
-    <form class="contact-form" id="contactForm">
+    <form class="contact-form" id="contactForm" action="https://formspree.io/f/mdarjnqj" method="POST">
       <div class="cf-eyebrow">Get in touch</div>
       <h3 class="cf-title">Let's talk.</h3>
       <div class="cf-row">
@@ -296,6 +296,8 @@
         <label class="cf-field"><span>Favourite club <i>(just for fun)</i></span><input type="text" name="favourite_club" autocomplete="off"></label>
       </div>
       <label class="cf-field"><span>Message</span><textarea name="message" rows="4" required></textarea></label>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" aria-hidden="true">
+      <input type="hidden" name="_subject" value="New enquiry — onzesite.com contact form">
       <button type="submit" class="cf-submit">Send</button>
       <div class="cf-status" id="cfStatus" role="status" aria-live="polite"></div>
     </form>
@@ -334,14 +336,13 @@
   wireModal(contactModal, [document.querySelector('.top-contact'), document.getElementById('mContact')],
     () => { cfStatus.textContent = ''; cfStatus.className = 'cf-status'; });
 
-  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID'; // TODO: replace once Formspree form is created
   contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = contactForm.querySelector('.cf-submit');
     btn.disabled = true;
     cfStatus.textContent = 'Sending…'; cfStatus.className = 'cf-status';
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch(contactForm.action, {
         method: 'POST',
         headers: { 'Accept': 'application/json' },
         body: new FormData(contactForm)
