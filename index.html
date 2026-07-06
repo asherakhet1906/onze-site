@@ -88,6 +88,10 @@
     .top-link{ display:none; }
     .top-contact{ display:none; }
     .burger{ display:block; }
+    /* the centered column can be taller than the viewport once the (hidden, space-reserving)
+       paragraphs are counted, pushing its top edge — and so the "loading" text anchored there —
+       up behind the fixed header/logo. Reserve clearance instead of relying on centering alone. */
+    main{ padding-top:112px; padding-bottom:40px; }
   }
 
   /* glass modal — shared by federations deck + players teaser */
@@ -324,7 +328,7 @@
   document.getElementById('mContact').addEventListener('click', closeMenu);
   addEventListener('keydown', e=>{ if(e.key==='Escape') closeMenu(); });
 
-  function wireModal(modal, triggers, onOpen){
+  function wireModal(modal, triggers, onOpen, guard){
     const panel = modal.querySelector('.glass-panel');
     const open = () => {
       if(onOpen) onOpen();
@@ -337,7 +341,10 @@
       setTimeout(settle, 500); // fallback in case transitionend doesn't fire
     };
     const close = () => { panel.classList.remove('settled'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); };
-    triggers.forEach(t => t.addEventListener('click', e=>{ e.preventDefault(); closeMenu(); open(); }));
+    triggers.forEach(t => t.addEventListener('click', e=>{
+      if(guard && !guard()) return; // let the link navigate normally instead of opening the modal
+      e.preventDefault(); closeMenu(); open();
+    }));
     modal.querySelectorAll('[data-close]').forEach(el=> el.addEventListener('click', close));
     addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
   }
@@ -345,7 +352,14 @@
   const frame = deckModal.querySelector('.deck-frame');
   const fedLink = document.querySelector('.top-link.federations');
   wireModal(deckModal, [fedLink, document.getElementById('mFederations')],
-    () => { if(!frame.src) frame.src = fedLink.getAttribute('href'); });
+    () => { if(!frame.src) frame.src = fedLink.getAttribute('href'); },
+    () => !matchMedia('(max-width:820px)').matches);
+    // ^ mobile: let "Federations" navigate to the deck as a real page instead of opening the
+    // iframe-in-modal. iOS Safari has a stubborn, still-unresolved bug where touch-scroll gestures
+    // don't reliably reach a scrollable iframe nested inside a modal — several targeted CSS/JS
+    // mitigations didn't fix it in practice, so mobile sidesteps the whole bug class: the deck's
+    // own native page scroll always works since there's no nested iframe involved at all.
+    // Desktop keeps the nicer glass-modal iframe experience.
 
   // contact form modal
   const contactModal = document.getElementById('contactModal');
