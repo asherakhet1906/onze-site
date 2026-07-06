@@ -17,8 +17,9 @@
 <script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('typing');</script>
 <style>
   *{ box-sizing:border-box; margin:0; padding:0; }
-  html,body{ height:100%; }
-  body{ background:#0c0a08; color:var(--onze-on-dark); font-family:var(--onze-font); -webkit-font-smoothing:antialiased; overflow:hidden;
+  html,body{ height:100%; overflow:hidden; overscroll-behavior:none; }
+  body{ background:#0c0a08; color:var(--onze-on-dark); font-family:var(--onze-font); -webkit-font-smoothing:antialiased;
+    position:fixed; inset:0; width:100%;
     --onze-center-gap:clamp(20px,3vw,40px); }
 
   /* intro reveal — icon first */
@@ -101,6 +102,9 @@
     backdrop-filter:blur(24px) saturate(150%); -webkit-backdrop-filter:blur(24px) saturate(150%);
     transform:scale(.96) translateY(10px); transition:transform .4s cubic-bezier(.2,.8,.2,1); }
   .glass-modal.open .glass-panel{ transform:scale(1) translateY(0); }
+  /* iOS Safari won't delegate touch-scroll into a nested iframe while an ancestor keeps a live
+     transform (even a no-op scale(1)/translateY(0)) — drop it once the open transition settles. */
+  .glass-panel.settled{ transform:none; }
   .glass-panel::before{ content:""; position:absolute; top:0; left:0; right:0; height:2px; z-index:2;
     background:linear-gradient(90deg, transparent, var(--onze-accent), transparent); }
   .glass-close{ position:absolute; top:14px; right:16px; z-index:3; width:32px; height:32px; border-radius:50%;
@@ -317,8 +321,15 @@
   addEventListener('keydown', e=>{ if(e.key==='Escape') closeMenu(); });
 
   function wireModal(modal, triggers, onOpen){
-    const open = () => { if(onOpen) onOpen(); modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); };
-    const close = () => { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); };
+    const panel = modal.querySelector('.glass-panel');
+    const open = () => {
+      if(onOpen) onOpen();
+      modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+      panel.addEventListener('transitionend', function onSettled(e){
+        if(e.propertyName === 'transform'){ panel.classList.add('settled'); panel.removeEventListener('transitionend', onSettled); }
+      });
+    };
+    const close = () => { panel.classList.remove('settled'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); };
     triggers.forEach(t => t.addEventListener('click', e=>{ e.preventDefault(); closeMenu(); open(); }));
     modal.querySelectorAll('[data-close]').forEach(el=> el.addEventListener('click', close));
     addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
