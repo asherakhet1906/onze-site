@@ -21,10 +21,7 @@
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--f);background:var(--ink);color:var(--od);-webkit-font-smoothing:antialiased}
 #bar{position:fixed;top:0;left:0;right:0;height:50px;background:var(--ink);border-bottom:1px solid var(--hld);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100}
-#bar-left{display:flex;align-items:center;gap:20px}
-#bar-left a{display:flex;align-items:center;text-decoration:none}
-#bar-players{font:700 10px/1 var(--f);text-transform:uppercase;letter-spacing:.12em;color:var(--odm);transition:color .2s ease}
-#bar-players:hover{color:var(--acc)}
+#bar a{display:flex;align-items:center;text-decoration:none}
 #logo{height:19px}
 #ctr{font:600 11px/1 var(--f);text-transform:uppercase;letter-spacing:.12em;color:var(--odm);min-width:52px;text-align:right}
 #vp{position:fixed;top:50px;left:0;right:0;bottom:3px;overflow:hidden}
@@ -201,11 +198,11 @@ body{font-family:var(--f);background:var(--ink);color:var(--od);-webkit-font-smo
 </style>
 </head>
 <body>
-<div id='bar'><div id='bar-left'><a href="https://www.onzesite.com/" target="_top" aria-label="Back to ONZE"><svg id="logo" viewBox="0 0 400 110" fill="none">
+<div id='bar'><a href="https://www.onzesite.com/" target="_top" aria-label="Back to ONZE"><svg id="logo" viewBox="0 0 400 110" fill="none">
   <circle cx="55" cy="55" r="46" stroke="white" stroke-width="9"/>
   <text x="55" y="70" text-anchor="middle" font-family="Inter,sans-serif" font-weight="800" font-size="38" fill="white">11</text>
   <text x="145" y="78" font-family="Inter,sans-serif" font-weight="800" font-size="70" fill="white" letter-spacing="-2">ONZE</text>
-</svg></a><a href="https://www.onzesite.com/players.html" target="_top" id="bar-players">Players</a></div><div id='bartitle' style='font:700 11px/1 var(--f);text-transform:uppercase;letter-spacing:.12em;color:var(--odm)'>Seychelles &mdash; Collective XI</div><div id='ctr'>01 / 15</div></div>
+</svg></a><div id='bartitle' style='font:700 11px/1 var(--f);text-transform:uppercase;letter-spacing:.12em;color:var(--odm)'>Seychelles &mdash; Collective XI</div><div id='ctr'>01 / 15</div></div>
 <div id='vp'>
 <div class="s ph" id="s1" style="background-image:url('sey-imgs/s1-hero.jpg')"><div class="ov"></div>
 <div class="sc">

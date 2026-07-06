@@ -263,6 +263,22 @@
   </div>
 </main>
 
+<script>
+(function(){
+  // Measure the header's ACTUAL rendered height (includes safe-area/notch effects already)
+  // rather than guessing a padding value in CSS — four rounds of guessed pixel/env() values
+  // still weren't reliably enough clearance on real iPhone hardware, and real measurement
+  // removes the guesswork entirely.
+  function positionMain(){
+    if(!matchMedia('(max-width:820px)').matches) return;
+    const headerBottom = document.querySelector('header').getBoundingClientRect().bottom;
+    document.querySelector('main').style.paddingTop = (headerBottom + 48) + 'px';
+  }
+  positionMain();
+  addEventListener('resize', positionMain);
+})();
+</script>
+
 <div class="foot foot-left">Amsterdam · Willemstad</div>
 <div class="foot foot-right">Paramaribo · Rabat</div>
 <div class="skip-hint" id="skipHint">click anywhere to skip</div>
