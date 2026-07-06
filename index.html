@@ -91,7 +91,12 @@
     /* the centered column can be taller than the viewport once the (hidden, space-reserving)
        paragraphs are counted, pushing its top edge — and so the "loading" text anchored there —
        up behind the fixed header/logo. Reserve clearance instead of relying on centering alone. */
-    main{ padding-top:calc(112px + env(safe-area-inset-top)); padding-bottom:40px; }
+    /* flex-start, not center: centering makes .col's top edge depend on its rendered content
+       height (which includes the still-hidden paragraphs, since visibility:hidden reserves
+       space) — on some devices/text-size settings that height is tall enough to push the top
+       edge back up past the padding reservation below, right into the header/notch again.
+       flex-start anchors the top edge at a fixed, content-independent offset instead. */
+    main{ align-items:flex-start; padding-top:calc(112px + env(safe-area-inset-top)); padding-bottom:40px; }
   }
 
   /* glass modal — shared by federations deck + players teaser */
@@ -230,7 +235,7 @@
 <div class="cross"><span class="dot"></span></div>
 
 <header>
-  <img src="assets/brand/logo/horizontal/onze-horizontal-white.png" alt="ONZE Sports Management">
+  <img id="homeLogo" src="assets/brand/logo/horizontal/onze-horizontal-white.png" alt="ONZE Sports Management" style="cursor:pointer">
   <a class="top-contact" href="#contact">Contact</a>
   <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
 </header>
@@ -433,6 +438,18 @@
   });
   // deep link from another page (e.g. the deck's "Players" link) — reuse the same open path
   if(location.hash === '#players') playersLink.click();
+
+  // logo = "home": closes whatever modal is open and returns to the clean landing view. Needed
+  // because a deep link (like the deck's Players link) can land here with a modal already open,
+  // and there was previously no way to escape it back to the base page.
+  document.getElementById('homeLogo').addEventListener('click', () => {
+    [deckModal, playersModal, contactModal].forEach(m => {
+      if(!m.classList.contains('open')) return;
+      const panel = m.querySelector('.glass-panel');
+      if(panel) panel.classList.remove('settled');
+      m.classList.remove('open'); m.setAttribute('aria-hidden','true');
+    });
+  });
 })();
 </script>
 
