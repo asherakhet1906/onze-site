@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONZE Sports Management</title>
+<meta name="description" content="ONZE Sports Management — boutique football representation. Dutch-built, Caribbean-rooted. Players, families and the federations of small nations. Amsterdam · Willemstad · Paramaribo · Rabat.">
+<meta property="og:title" content="ONZE Sports Management">
+<meta property="og:description" content="Boutique football representation. Dutch-built, Caribbean-rooted. We take on few — and commit completely.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/imagery/hero/hero-locs-og.jpg">
+<link rel="icon" href="assets/brand/favicon/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design-system/tokens.css">
+<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('typing');</script>
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{ background:#0c0a08; color:var(--onze-on-dark); font-family:var(--onze-font); -webkit-font-smoothing:antialiased; overflow:hidden;
+    --onze-center-gap:clamp(20px,3vw,40px); }
+
+  /* intro reveal — icon first */
+  #intro{ position:fixed; inset:0; z-index:100; background:#0c0a08; display:flex; align-items:center; justify-content:center;
+    animation:introOut .9s ease 1.7s forwards; }
+  #intro img{ width:132px; height:auto; opacity:0; transform:scale(.82); animation:iconIn 1s cubic-bezier(.2,.7,.2,1) .15s forwards; }
+  @keyframes iconIn{ to{ opacity:1; transform:scale(1); } }
+  @keyframes introOut{ to{ opacity:0; visibility:hidden; } }
+
+  /* faint crosshair (ONZE take on the competitor grid) */
+  .cross{ position:fixed; inset:0; z-index:2; pointer-events:none; }
+  .cross::before,.cross::after{ content:""; position:absolute; background:rgba(255,255,255,.08); }
+  .cross::before{ left:50%; top:0; bottom:0; width:1px; }
+  .cross::after{ top:50%; left:0; right:0; height:1px; }
+  .cross .dot{ position:absolute; left:50%; top:50%; width:7px; height:7px; border-radius:50%; transform:translate(-50%,-50%);
+    background:var(--onze-accent); box-shadow:0 0 12px 1px rgba(255,31,107,.6); }
+
+  /* imagery in the right two quadrants */
+  .quad-img{ position:fixed; top:0; bottom:0; left:35%; right:0; z-index:1; overflow:hidden; opacity:0; animation:fadeIn 1.5s ease 2.1s forwards; }
+  .quad-img::before{ content:""; position:absolute; inset:0; background:url("assets/imagery/hero/hero-garage-poster.jpg") 70% center/cover;
+    transform:scale(1.12); animation:drift 32s ease-in-out infinite alternate; }
+  .quad-img video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:70% center; }
+  .quad-img::after{ content:""; position:absolute; inset:0;
+    background:linear-gradient(90deg, #0c0a08 0%, rgba(12,10,8,.6) 14%, rgba(12,10,8,.2) 46%, rgba(12,10,8,.5) 100%),
+               linear-gradient(0deg, rgba(12,10,8,.55) 0%, rgba(12,10,8,0) 32%); }
+  @keyframes fadeIn{ to{ opacity:1; } }
+  @keyframes drift{ from{ transform:scale(1.12) translate(0,0); } to{ transform:scale(1.2) translate(-2.6%,-2.6%); } }
+  @media (max-width:820px){
+    .quad-img{ left:0; }                                  /* full-bleed dimmed backdrop behind the text */
+    .quad-img::before{ background-image:url("assets/imagery/hero/hero-locs-mobile-poster.jpg"); background-position:center; }
+    .quad-img video{ object-position:center; }
+    .quad-img::after{ background:linear-gradient(0deg, rgba(12,10,8,.92) 0%, rgba(12,10,8,.78) 55%, rgba(12,10,8,.55) 100%); }
+  }
+
+  header{ position:fixed; top:0; left:0; right:0; z-index:10; display:flex; justify-content:space-between; align-items:center;
+    padding:30px clamp(28px,5vw,64px); }
+  header img{ height:40px; display:block; }              /* logo — bigger than the competitor */
+  .top-contact{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; font-weight:600; color:var(--onze-on-dark-mute); text-decoration:none; }
+  .top-contact:hover{ color:var(--onze-accent); }
+
+  .top-link{ position:fixed; top:50px; transform:translateY(-50%); z-index:10; font-size:12px; letter-spacing:.16em; text-transform:uppercase; font-weight:600;
+    color:var(--onze-on-dark-mute); text-decoration:none; }
+  .top-link:hover{ color:var(--onze-accent); }
+  .top-link.players{ right:calc(50% + var(--onze-center-gap)); }
+  .top-link.federations{ left:calc(50% + var(--onze-center-gap)); }
+  /* hamburger + full-screen menu — mobile only */
+  .burger{ display:none; position:relative; width:40px; height:40px; background:none; border:0; cursor:pointer; padding:0; margin-right:-8px; }
+  .burger span{ position:absolute; left:9px; right:9px; height:2px; background:#fff; transition:transform .3s ease, opacity .25s ease, top .3s ease; }
+  .burger span:nth-child(1){ top:14px; }
+  .burger span:nth-child(2){ top:20px; }
+  .burger span:nth-child(3){ top:26px; }
+  .burger.open span:nth-child(1){ top:20px; transform:rotate(45deg); }
+  .burger.open span:nth-child(2){ opacity:0; }
+  .burger.open span:nth-child(3){ top:20px; transform:rotate(-45deg); }
+  .mnav{ position:fixed; inset:0; z-index:9; background:rgba(12,10,8,.96);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:40px;
+    opacity:0; pointer-events:none; transition:opacity .3s ease; }
+  .mnav.open{ opacity:1; pointer-events:auto; }
+  .mnav a{ font-size:20px; font-weight:800; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--onze-on-dark); text-decoration:none; }
+  .mnav a:hover, .mnav a:active{ color:var(--onze-accent); }
+  .mnav-cities{ position:absolute; bottom:26px; left:0; right:0; text-align:center;
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgba(250,247,240,.4); }
+  @media (max-width:820px){
+    .top-link{ display:none; }
+    .top-contact{ display:none; }
+    .burger{ display:block; }
+  }
+
+  /* glass modal — shared by federations deck + players teaser */
+  .glass-modal{ position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .35s ease; }
+  .glass-modal.open{ opacity:1; pointer-events:auto; }
+  .glass-modal-backdrop{ position:absolute; inset:0; background:rgba(12,10,8,.6);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+  .glass-panel{ position:relative; width:min(960px,90vw); height:min(640px,86vh); border-radius:20px; overflow:hidden;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 0 0 1px rgba(255,31,107,.28), 0 30px 80px rgba(0,0,0,.55), 0 0 60px rgba(255,31,107,.18);
+    backdrop-filter:blur(24px) saturate(150%); -webkit-backdrop-filter:blur(24px) saturate(150%);
+    transform:scale(.96) translateY(10px); transition:transform .4s cubic-bezier(.2,.8,.2,1); }
+  .glass-modal.open .glass-panel{ transform:scale(1) translateY(0); }
+  .glass-panel::before{ content:""; position:absolute; top:0; left:0; right:0; height:2px; z-index:2;
+    background:linear-gradient(90deg, transparent, var(--onze-accent), transparent); }
+  .glass-close{ position:absolute; top:14px; right:16px; z-index:3; width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+    color:var(--onze-on-dark-mute); font-size:18px; line-height:1; cursor:pointer;
+    transition:color .2s ease, border-color .2s ease, background .2s ease; }
+  .glass-close:hover{ color:var(--onze-accent); border-color:rgba(255,31,107,.5); background:rgba(255,31,107,.1); }
+  .deck-frame{ position:relative; z-index:1; width:100%; height:100%; border:0; display:block; background:transparent; }
+  @media (max-width:820px){ .glass-panel{ width:94vw; height:80vh; border-radius:14px; } }
+
+  /* players teaser content */
+  .teaser{ position:relative; z-index:1; width:100%; height:100%; background:#000;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; overflow:hidden; }
+  .teaser video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.45; z-index:0; }
+  .teaser::after{ content:""; position:absolute; inset:0; z-index:1;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,.30) 0%, rgba(0,0,0,.82) 80%); }
+  .teaser img{ width:104px; height:auto; opacity:.95; position:relative; z-index:2; }
+  .teaser-msg{ position:relative; z-index:2; }
+  .teaser-msg{ display:flex; align-items:center; gap:12px; font-size:12px; letter-spacing:.24em;
+    text-transform:uppercase; font-weight:700; color:var(--onze-on-dark-mute); }
+  .teaser-msg::before{ content:""; width:26px; height:2px; background:var(--onze-accent); }
+
+  main{ position:relative; z-index:5; height:100%; display:flex; align-items:center; padding:0 clamp(28px,5vw,64px); }
+  .col{ max-width:600px; position:relative; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:none; } }
+  .eyebrow{ color:var(--onze-accent); font-size:12px; letter-spacing:.24em; text-transform:uppercase; font-weight:700;
+    display:flex; align-items:center; gap:12px; margin-bottom:34px; }
+  .eyebrow::before{ content:""; width:26px; height:2px; background:var(--onze-accent); }
+  .col p{ font-size:15.5px; line-height:1.78; color:rgba(250,247,240,.80); font-weight:400; }
+  .col p + p{ margin-top:20px; }
+  .col p b{ color:#fff; font-weight:600; }
+
+  .foot{ position:fixed; bottom:26px; z-index:5; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgba(250,247,240,.4); }
+  .foot-left{ right:calc(50% + var(--onze-center-gap)); }
+  .foot-right{ left:calc(50% + var(--onze-center-gap)); }
+
+  /* typewriter */
+  html.typing .eyebrow, html.typing .col p{ visibility:hidden; }
+  .caret{ display:inline-block; width:2px; height:1.02em; background:var(--onze-accent); margin-left:2px; vertical-align:-.14em;
+    box-shadow:0 0 8px rgba(255,31,107,.7); animation:blink 1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .loading{ position:absolute; top:0; left:0; display:none; font-size:12px; letter-spacing:.26em; text-transform:uppercase; font-weight:600; color:rgba(250,247,240,.62); }
+  .loading.show{ display:block; }
+  .load-bar{ position:absolute; top:27px; left:0; width:118px; height:2px; background:rgba(255,255,255,.12); display:none; overflow:hidden; }
+  .load-bar.show{ display:block; }
+  .load-bar::after{ content:""; display:block; height:100%; width:0; background:var(--onze-accent); box-shadow:0 0 8px rgba(255,31,107,.6); }
+  .load-bar.fill::after{ width:100%; transition:width 6.9s linear; }
+  .skip-hint{ position:fixed; right:clamp(28px,5vw,64px); bottom:26px; z-index:6; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgba(250,247,240,.36); opacity:0; transition:opacity .8s ease; pointer-events:none; }
+  .skip-hint.show{ opacity:1; }
+
+  @media (prefers-reduced-motion: reduce){
+    #intro{ display:none; } .col,.foot,.quad-img{ animation:none; opacity:1; transform:none; } .quad-img::before{ animation:none; transform:scale(1.12); }
+    .quad-img video, .teaser video{ display:none; }
+  }
+  @media (max-width:560px){
+    .cross::before{ display:none; }
+    header img{ height:30px; }
+    .top-contact{ font-size:11px; letter-spacing:.12em; }
+    .foot{ font-size:10px; letter-spacing:.14em; }
+    .foot-left{ right:calc(50% + 12px); }
+    .foot-right{ left:calc(50% + 12px); }
+    .skip-hint{ right:50%; transform:translateX(50%); bottom:58px; white-space:nowrap; }
+  }
+</style>
+</head>
+<body>
+
+<div id="intro"><img src="assets/brand/logo/icon/onze-icon-white.png" alt="ONZE"></div>
+
+<div class="quad-img">
+  <video autoplay muted loop playsinline poster="assets/imagery/hero/hero-garage-poster.jpg" aria-hidden="true">
+    <source src="assets/imagery/hero/video/hero-locs-mobile-loop.webm" type="video/webm" media="(max-width:820px)">
+    <source src="assets/imagery/hero/video/hero-locs-mobile-loop.mp4" type="video/mp4" media="(max-width:820px)">
+    <source src="assets/imagery/hero/video/hero-garage-sequence-v2.webm" type="video/webm">
+    <source src="assets/imagery/hero/video/hero-garage-sequence-v2.mp4" type="video/mp4">
+  </video>
+</div>
+<script>if(matchMedia('(max-width:820px)').matches){document.querySelector('.quad-img video').poster='assets/imagery/hero/hero-locs-mobile-poster.jpg';}</script>
+<div class="cross"><span class="dot"></span></div>
+
+<header>
+  <img src="assets/brand/logo/horizontal/onze-horizontal-white.png" alt="ONZE Sports Management">
+  <a class="top-contact" href="#contact">Contact</a>
+  <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+</header>
+
+<nav class="mnav" id="mnav" aria-hidden="true">
+  <a href="#players" id="mPlayers">Players</a>
+  <a href="decks/seychelles/onze-seychelles-edit.html" id="mFederations">Federations</a>
+  <a href="#contact" id="mContact">Contact</a>
+  <div class="mnav-cities">Amsterdam · Willemstad · Paramaribo · Rabat</div>
+</nav>
+
+<a class="top-link players" href="#players">Players</a>
+<a class="top-link federations" href="decks/seychelles/onze-seychelles-edit.html">Federations</a>
+
+<main>
+  <div class="col">
+    <div class="loading" id="loading">loading</div>
+    <div class="load-bar" id="loadBar"></div>
+    <div class="eyebrow">Sports management — Est. 2026</div>
+    <p>Founded in 2026 by FIFA-licensed agent <b>Francisco de Miranda</b>, ONZE Sports Management is a boutique football representation agency. Dutch-built and Caribbean-rooted, it was created on a single principle that has not changed since: stay close to every client — every player, every family, every association.</p>
+    <p>We represent footballers and the federations of small nations. By design the roster stays small and hand-picked: we take on few, and once we commit, we commit completely.</p>
+    <p>Our service is bespoke to each client. We advise across contract and transfer, legal, financial and tax, medical and performance, and image and brand — alongside the everyday matters of a life in the game. Quietly, thoroughly, and for the long term.</p>
+  </div>
+</main>
+
+<div class="foot foot-left">Amsterdam · Willemstad</div>
+<div class="foot foot-right">Paramaribo · Rabat</div>
+<div class="skip-hint" id="skipHint">click anywhere to skip</div>
+
+<div class="glass-modal" id="deckModal" aria-hidden="true">
+  <div class="glass-modal-backdrop" data-close></div>
+  <div class="glass-panel" role="dialog" aria-modal="true" aria-label="ONZE × Seychelles federation deck">
+    <button class="glass-close" type="button" aria-label="Close" data-close>&times;</button>
+    <iframe class="deck-frame" title="ONZE × Seychelles — Collective XI"></iframe>
+  </div>
+</div>
+
+<div class="glass-modal" id="playersModal" aria-hidden="true">
+  <div class="glass-modal-backdrop" data-close></div>
+  <div class="glass-panel" role="dialog" aria-modal="true" aria-label="Players">
+    <button class="glass-close" type="button" aria-label="Close" data-close>&times;</button>
+    <div class="teaser">
+      <video autoplay muted loop playsinline poster="assets/imagery/hero/video/ball-macro-poster.jpg" aria-hidden="true">
+        <source src="assets/imagery/hero/video/ball-macro-loop.webm" type="video/webm">
+        <source src="assets/imagery/hero/video/ball-macro-loop.mp4" type="video/mp4">
+      </video>
+      <img src="assets/brand/logo/icon/onze-icon-white.png" alt="ONZE">
+      <div class="teaser-msg"><span class="teaser-text">Coming soon.</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // hamburger menu (mobile)
+  const burger = document.getElementById('burger');
+  const mnav = document.getElementById('mnav');
+  const setMenu = o => { burger.classList.toggle('open', o); mnav.classList.toggle('open', o);
+    mnav.setAttribute('aria-hidden', String(!o)); burger.setAttribute('aria-expanded', String(o)); };
+  const closeMenu = () => setMenu(false);
+  burger.addEventListener('click', ()=> setMenu(!mnav.classList.contains('open')));
+  document.getElementById('mContact').addEventListener('click', closeMenu);
+  addEventListener('keydown', e=>{ if(e.key==='Escape') closeMenu(); });
+
+  function wireModal(modal, triggers, onOpen){
+    const open = () => { if(onOpen) onOpen(); modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); };
+    const close = () => { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); };
+    triggers.forEach(t => t.addEventListener('click', e=>{ e.preventDefault(); closeMenu(); open(); }));
+    modal.querySelectorAll('[data-close]').forEach(el=> el.addEventListener('click', close));
+    addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
+  }
+  const deckModal = document.getElementById('deckModal');
+  const frame = deckModal.querySelector('.deck-frame');
+  const fedLink = document.querySelector('.top-link.federations');
+  wireModal(deckModal, [fedLink, document.getElementById('mFederations')],
+    () => { if(!frame.src) frame.src = fedLink.getAttribute('href'); });
+
+  const playersModal = document.getElementById('playersModal');
+  const playersLink = document.querySelector('.top-link.players');
+  const teaserText = playersModal.querySelector('.teaser-text');
+  const teaserFull = teaserText.textContent;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const sleep = ms => new Promise(r=>setTimeout(r, ms));
+  const delayFor = ch => { if('.!?'.includes(ch)) return 260; if(',;:—'.includes(ch)) return 130; return 30 + Math.random()*30; };
+  const TYPO_AT = 5, TYPO_CHAR = 'h';   // "Comin" + stray "h" before correcting to "Coming"
+  let openToken = 0;
+  async function typeTeaser(token){
+    let shown = '';
+    const render = () => { teaserText.innerHTML = esc(shown) + '<span class="caret"></span>'; };
+    for(let i=0; i<teaserFull.length; i++){
+      if(token !== openToken) return;
+      if(i === TYPO_AT){
+        shown += TYPO_CHAR; render();
+        await sleep(260);
+        if(token !== openToken) return;
+        shown = shown.slice(0,-1);
+        await sleep(90);
+        render();
+        await sleep(140);
+        if(token !== openToken) return;
+      }
+      shown += teaserFull[i]; render();
+      await sleep(delayFor(teaserFull[i]));
+    }
+  }
+  wireModal(playersModal, [playersLink, document.getElementById('mPlayers')], () => {
+    const token = ++openToken;
+    if(reduceMotion){ teaserText.textContent = teaserFull; return; }
+    teaserText.style.visibility = 'hidden';
+    teaserText.textContent = '';
+    setTimeout(()=>{ teaserText.style.visibility = 'visible'; typeTeaser(token); }, 1000);
+  });
+})();
+</script>
+
+<script>
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // static text, no typing
+  let skip=false;
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const segsFromEl = el => { const o=[]; el.childNodes.forEach(n=>{ if(n.nodeType===1 && n.tagName==='B') o.push({t:n.textContent,b:1}); else o.push({t:n.textContent}); }); return o; };
+  const render = chars => { let h='',open=false; for(const c of chars){ if(c.b&&!open){h+='<b>';open=true;} else if(!c.b&&open){h+='</b>';open=false;} h+=esc(c.ch);} if(open)h+='</b>'; return h; };
+  const segHTML = segs => segs.map(s=> s.b ? '<b>'+esc(s.t)+'</b>' : esc(s.t)).join('');
+  const delayFor = ch => { if('.!?'.includes(ch)) return 190; if(',;:—'.includes(ch)) return 85; return 11 + Math.random()*13; };
+  async function typeInto(el, segs, speed=1, keepCaret=false){
+    el.style.visibility='visible';
+    const flat=[]; for(const s of segs) for(const ch of s.t) flat.push({ch,b:!!s.b});
+    if(skip){ el.innerHTML = render(flat) + (keepCaret?'<span class="caret"></span>':''); return; }
+    for(let i=0;i<=flat.length;i++){
+      if(skip){ el.innerHTML = render(flat) + (keepCaret?'<span class="caret"></span>':''); return; }
+      el.innerHTML = render(flat.slice(0,i)) + '<span class="caret"></span>';
+      if(i<flat.length) await sleep(delayFor(flat[i].ch)*speed);
+    }
+    if(!keepCaret){ const c=el.querySelector('.caret'); if(c) c.remove(); }
+  }
+  const eyebrow = document.querySelector('.eyebrow');
+  const ps = [...document.querySelectorAll('.col p')];
+  const loading = document.getElementById('loading');
+  const loadBar = document.getElementById('loadBar');
+  const skipHint = document.getElementById('skipHint');
+  const eSeg = segsFromEl(eyebrow);
+  const pSeg = ps.map(segsFromEl);
+
+  // (3) session memory — REMOVED for now (kept out so the reveal replays on every load, for design review).
+  //     To re-enable later, wrap the reveal: if(sessionStorage.getItem('onze_seen')){ show instantly via segHTML(); return; } else sessionStorage.setItem('onze_seen','1');
+
+  // (2) skip: tap anywhere to fill instantly; hint appears a couple seconds in
+  addEventListener('click', ()=>{ skip=true; if(skipHint) skipHint.classList.remove('show'); }, {once:true});
+  setTimeout(()=>{ if(!skip && skipHint) skipHint.classList.add('show'); }, 2700);
+
+  // (1) caret rides along through the loading beat
+  const setLoad = w => loading.innerHTML = w + '<span class="caret"></span>';
+
+  (async ()=>{
+    await sleep(2400);                        // let the icon reveal clear
+    loading.classList.add('show'); loadBar.classList.add('show');
+    requestAnimationFrame(()=> loadBar.classList.add('fill'));   // (4) progress line fills over ~7s
+    setLoad('loading'); await sleep(skip?200:3650);
+    setLoad('ready');   await sleep(skip?0:2400);
+    setLoad('go');      await sleep(skip?0:950);
+    loading.classList.remove('show'); loadBar.classList.remove('show');
+    await typeInto(eyebrow, eSeg, .6);        // eyebrow types a touch faster
+    await sleep(240);
+    for(let i=0;i<ps.length;i++){
+      const last = (i===ps.length-1);
+      await typeInto(ps[i], pSeg[i], 1, last); // keep the blinking magenta caret on the final line
+      if(!last) await sleep(skip?0:300);
+    }
+    if(skipHint) skipHint.classList.remove('show');   // nothing left to skip
+  })();
+})();
+</script>
+
+</body>
+</html>
