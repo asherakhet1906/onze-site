@@ -55,7 +55,7 @@
   }
 
   header{ position:fixed; top:0; left:0; right:0; z-index:10; display:flex; justify-content:space-between; align-items:center;
-    padding:30px clamp(28px,5vw,64px); }
+    padding:30px clamp(28px,5vw,64px); padding-top:calc(30px + env(safe-area-inset-top)); }
   header img{ height:40px; display:block; }              /* logo — bigger than the competitor */
   .top-contact{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; font-weight:600; color:var(--onze-on-dark-mute); text-decoration:none; }
   .top-contact:hover{ color:var(--onze-accent); }
@@ -91,7 +91,7 @@
     /* the centered column can be taller than the viewport once the (hidden, space-reserving)
        paragraphs are counted, pushing its top edge — and so the "loading" text anchored there —
        up behind the fixed header/logo. Reserve clearance instead of relying on centering alone. */
-    main{ padding-top:112px; padding-bottom:40px; }
+    main{ padding-top:calc(112px + env(safe-area-inset-top)); padding-bottom:40px; }
   }
 
   /* glass modal — shared by federations deck + players teaser */
@@ -431,6 +431,8 @@
     teaserText.textContent = '';
     setTimeout(()=>{ teaserText.style.visibility = 'visible'; typeTeaser(token); }, 1000);
   });
+  // deep link from another page (e.g. the deck's "Players" link) — reuse the same open path
+  if(location.hash === '#players') playersLink.click();
 })();
 </script>
 
