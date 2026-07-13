@@ -1329,7 +1329,7 @@ html:not(.js) .s4-dlabel{opacity:1}
     <div class="s2-media">
       <div class="s2-tilt-outer">
         <div class="s2-card-frame" id="s2CardFrame">
-          <img class="s2-card-img" src="assets/fifa-license/web/fifa-card-back.png" alt="FIFA Football Agent licence &mdash; Francisco de Miranda">
+          <img class="s2-card-img" loading="lazy" decoding="async" src="assets/fifa-license/web/fifa-card-back.png" alt="FIFA Football Agent licence &mdash; Francisco de Miranda">
           <div class="s2-sheen" id="s2Sheen"></div>
           <div class="s2-scan-line"></div>
           <div class="s2-verify-badge">
@@ -1424,7 +1424,7 @@ html:not(.js) .s4-dlabel{opacity:1}
     </div>
     <div class="s4-media">
       <div class="s4-globe-bg">
-        <img src="assets/imagery/optimized/world-dotmap.webp" alt="" aria-hidden="true">
+        <img loading="lazy" decoding="async" src="assets/imagery/optimized/world-dotmap.webp" alt="" aria-hidden="true">
         <div class="s4-globe-scrim"></div>
       </div>
       <svg class="s4-corridor" viewBox="40 -45 1000 500" preserveAspectRatio="xMidYMid meet">
@@ -1611,7 +1611,9 @@ html:not(.js) .s4-dlabel{opacity:1}
   <div class="scr-inner">
     <p class="eyebrow">The Seychelles Football Federation</p>
     <div class="scr-stage">
-      <img class="scr-shield" src="assets/imagery/optimized/sff-shield-glass.webp"
+      <!-- lazy on purpose: the lossless webp is 749KB (see the ground-color note in its CSS) and
+           sits 12 slides deep — at startup it was competing with the hero video's stream -->
+      <img class="scr-shield" loading="lazy" decoding="async" src="assets/imagery/optimized/sff-shield-glass.webp"
            alt="The Seychelles Football Federation crest, re-rendered as a translucent glass shield">
     </div>
     <h2 class="scr-headline">The same mission as always.</h2>
@@ -1711,6 +1713,19 @@ gsap.defaults({ duration:MO.dur, ease:'power2.out' });
   if(!v || REDUCED) return;
   var p = v.play();
   if(p && p.catch) p.catch(function(){});
+  // decode budget: the loop kept decoding even twelve slides deep. Pause whenever slide 0 is
+  // fully offscreen, resume on return — same visibility-gating idiom as the slide-1 shader.
+  var slide0 = document.getElementById('slide0');
+  if(slide0 && 'IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting){
+        var pp = v.play();
+        if(pp && pp.catch) pp.catch(function(){});
+      } else {
+        v.pause();
+      }
+    }).observe(slide0);
+  }
 })();
 
 // deck-wide: the fixed meta-bar's slide counter tracks whichever slide is most visible right now —
@@ -2368,8 +2383,17 @@ function initTicker(){
 // would tax phone batteries for nothing. Mobile note: the composition must not DEPEND on the
 // flashlight (it's pointer-driven), and it doesn't — dither + scrim + text is the complete slide;
 // touch-dragging works as the reveal on phones via pointermove.
-(function(){
+(function initWave(){
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // congestion gate: don't initialize (context, shader compile, texture decode, render loop)
+  // until the page's full load — during the first-minute download window on phones the deck
+  // is streaming the hero video, and the shader competing for GPU/main-thread was part of the
+  // "loose scroll" feel on the opening slides. Until then slide 1 shows the static photo,
+  // which is this canvas's designed fallback state anyway.
+  if (document.readyState !== 'complete') {
+    window.addEventListener('load', initWave, { once:true });
+    return;
+  }
   var canvas = document.querySelector('.slide1-wave');
   var slide = document.getElementById('slide1');
   if (!canvas || !slide || !window.CXI_SLIDE1_TEX) return;
@@ -2457,7 +2481,9 @@ function initTicker(){
   gl.uniform1f(U.uMouseActive, 0);
   gl.uniform2f(U.uMouse, -10, -10);
 
-  var dpr = Math.min(window.devicePixelRatio || 1, 2); // cap: retina at full DPR doubles fill cost
+  // cap: retina at full DPR doubles fill cost; phones cap harder (1.5) — through the Bayer
+  // dither the difference is invisible, and it roughly halves GPU load on a 3x screen
+  var dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1.5 : 2);
   gl.uniform1f(U.uPixelSize, 2.0 * dpr);               // keeps dither dots the same visual size
 
   var imgAspect = 1;
