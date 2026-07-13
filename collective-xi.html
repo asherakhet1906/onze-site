@@ -71,7 +71,10 @@ html,body{margin:0;padding:0}
    where it covers the viewport, so free scroll inside tall slides survives; only boundaries
    snap. scroll-snap-stop keeps a hard flick from skipping past slides unseen — this is a
    pitch, every slide is supposed to get its moment. */
-html{scroll-snap-type:y mandatory}
+html{scroll-snap-type:y mandatory;overscroll-behavior-y:none}
+/* overscroll-behavior kills the rubber-band bounce at the very top — combined with the mobile
+   address bar still animating during the first few swipes, it made slides 0/1 feel unanchored
+   right after load (the bar settling is also why the deck "firms up" after a minute). */
 .deck-slide{scroll-snap-align:start;scroll-snap-stop:always}
 body{background:var(--dark);font-family:var(--font-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 ::selection{background:var(--gold);color:var(--ink)}
@@ -102,7 +105,7 @@ html.from-onze .arrival-cover{display:block;animation:arrival-fade .6s ease .15s
 .deck-nav{
   position:fixed;right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));
   z-index:60;display:flex;flex-direction:column;gap:10px;
-  animation:pill-in .6s ease 4.3s both;
+  animation:pill-in .6s ease 4.3s backwards; /* backwards, NOT both: a filling animation would pin opacity:1 and the chrome-idle fade could never win */
 }
 .deck-nav button{
   width:44px;height:44px;border-radius:50%;padding:0;cursor:pointer;
@@ -124,6 +127,15 @@ html.from-onze .arrival-cover{display:block;animation:arrival-fade .6s ease .15s
 /* Both pills fade in at 4.3s — the same delay as the first hero photo's own fade-in (see .hero-slide
    below), so the nav chrome arrives in step with that photo rather than at its own arbitrary time. */
 @keyframes pill-in{0%{opacity:0;transform:translateY(-6px)}100%{opacity:1;transform:translateY(0)}}
+/* chrome idle-fade: after ~2.6s without any interaction the three fixed pills dim to a whisper
+   so they stop sitting on slide content (phones especially); any scroll/touch/key restores them
+   instantly. The cycle only starts on the viewer's FIRST interaction — the cold-open entrance
+   plays out untouched. Reduced-motion viewers keep chrome permanently visible. */
+.meta-bar,.deck-header,.deck-nav{transition:opacity .6s ease}
+html.chrome-idle .meta-bar,html.chrome-idle .deck-header,html.chrome-idle .deck-nav{opacity:.18}
+@media (prefers-reduced-motion:reduce){
+  html.chrome-idle .meta-bar,html.chrome-idle .deck-header,html.chrome-idle .deck-nav{opacity:1}
+}
 .meta-bar{
   position:fixed;top:0;right:0;z-index:60;
   display:flex;align-items:center;gap:10px;
@@ -133,7 +145,7 @@ html.from-onze .arrival-cover{display:block;animation:arrival-fade .6s ease .15s
   color:rgba(251,250,246,.85);
   font:700 10.5px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
   font-variant-numeric:tabular-nums;
-  animation:pill-in .6s ease 4.3s both;
+  animation:pill-in .6s ease 4.3s backwards; /* backwards, NOT both: a filling animation would pin opacity:1 and the chrome-idle fade could never win */
 }
 @media (max-width:560px){
   .meta-bar{padding:0 12px}
@@ -253,7 +265,7 @@ html.from-onze .arrival-cover{display:block;animation:arrival-fade .6s ease .15s
   height:34px;padding:0 16px;border-radius:17px;
   background:color-mix(in srgb, var(--dark) 68%, transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   display:flex;align-items:center;
-  animation:pill-in .6s ease 4.3s both;
+  animation:pill-in .6s ease 4.3s backwards; /* backwards, NOT both: a filling animation would pin opacity:1 and the chrome-idle fade could never win */
 }
 .deck-header-link{display:flex;align-items:center;border-radius:17px}
 .deck-header-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
@@ -2318,6 +2330,23 @@ function initTicker(){
   });
   document.getElementById('slide3').addEventListener('click', function(){ closeAll(); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAll(); });
+})();
+
+// chrome idle-fade (see the pill-in CSS block): dims the fixed pills after 2.6s of stillness,
+// restores them on any interaction. Deliberately does nothing until the first interaction, so
+// on the cold open the pills finish their 4.3s entrance and stay discoverable until the viewer
+// actually starts moving.
+(function(){
+  if(REDUCED) return;
+  var t;
+  function wake(){
+    document.documentElement.classList.remove('chrome-idle');
+    clearTimeout(t);
+    t = setTimeout(function(){ document.documentElement.classList.add('chrome-idle'); }, 2600);
+  }
+  ['scroll','wheel','pointerdown','pointermove','keydown','touchstart'].forEach(function(ev){
+    window.addEventListener(ev, wake, {passive:true});
+  });
 })();
 </script>
 
