@@ -64,12 +64,15 @@ try {
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-/* proximity, never mandatory: slides 2/3 run taller than one viewport at phone widths, and
-   mandatory snap would either trap the scroll short of their lower content or leap past it.
-   Proximity only magnetizes the boundary when a slide edge is already near — free scroll
-   inside tall slides stays untouched. */
-html{scroll-snap-type:y proximity}
-.deck-slide{scroll-snap-align:start}
+/* mandatory (was proximity): proximity let the page rest between slides whenever a gesture
+   stopped away from a boundary — the deck felt "loose", worst on the full-bleed slides 0/1.
+   The old fear about mandatory trapping the over-tall slides (2/3 at phone widths) was a
+   misreading of the spec: a snap area TALLER than the snapport permits every scroll position
+   where it covers the viewport, so free scroll inside tall slides survives; only boundaries
+   snap. scroll-snap-stop keeps a hard flick from skipping past slides unseen — this is a
+   pitch, every slide is supposed to get its moment. */
+html{scroll-snap-type:y mandatory}
+.deck-slide{scroll-snap-align:start;scroll-snap-stop:always}
 body{background:var(--dark);font-family:var(--font-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 ::selection{background:var(--gold);color:var(--ink)}
 
@@ -1208,7 +1211,7 @@ html:not(.js) .s4-dlabel{opacity:1}
 
 <div class="deck-progress" aria-hidden="true"><div class="deck-progress-fill" id="deckProgressFill"></div></div>
 
-<div class="meta-bar"><span>Slide <span id="metaSlideNum">1</span> of 14</span></div>
+<div class="meta-bar"><span>Slide <span id="metaSlideNum">1</span>/14</span></div>
 
 <!-- visible prev/next controls — the deck's viewer navigates alone, so paging must not depend on
      the viewer knowing that arrow keys work (they do too; see the keydown handler). -->
