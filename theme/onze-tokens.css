@@ -1,0 +1,29 @@
+:root {
+  --color-ink: #171310;
+  --color-ground: #E4E3DE;
+  --color-ember: #B23A1F;
+  --color-ochre: #B2731A;
+  --color-brass: #A3801F;
+  --color-indigo: #223A7C;
+
+  --font-display: 'Anton', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-ink: #EDEAE3;
+    --color-ground: #121110;
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-ink: #EDEAE3;
+  --color-ground: #121110;
+}
+
+:root[data-theme="light"] {
+  --color-ink: #171310;
+  --color-ground: #E4E3DE;
+}

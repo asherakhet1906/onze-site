@@ -1,496 +1,377 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>ONZE Sports Management</title>
-<meta name="description" content="ONZE Sports Management — boutique football representation. Dutch-built, Caribbean-rooted. Players, families and the federations of small nations. Amsterdam · Willemstad · Paramaribo · Rabat.">
-<meta property="og:title" content="ONZE Sports Management">
-<meta property="og:description" content="Boutique football representation. Dutch-built, Caribbean-rooted. We take on few — and commit completely.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ONZE</title>
+<meta name="description" content="ONZE Sports — a boutique football talent management firm. Caribbean roots, Dutch soil.">
+<!-- private pitch: keep out of search indexes until ONZE decides otherwise -->
+<meta name="robots" content="noindex,nofollow">
+<!-- og:image/og:url are absolute (deployed at www.onzesite.com, GitHub Pages, 2026-07-13) —
+     link scrapers (WhatsApp/iMessage/Slack) ignore relative image paths. See DEPLOY.md. -->
 <meta property="og:type" content="website">
-<meta property="og:image" content="assets/imagery/hero/hero-locs-og.jpg">
-<link rel="icon" href="assets/brand/favicon/favicon.ico">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="design-system/tokens.css">
-<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('typing');</script>
+<meta property="og:url" content="https://www.onzesite.com/">
+<meta property="og:title" content="ONZE">
+<meta property="og:description" content="ONZE Sports — a boutique football talent management firm. Caribbean roots, Dutch soil.">
+<meta property="og:image" content="https://www.onzesite.com/assets/og/og-onze.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/og/favicon-onze.png">
+<link rel="apple-touch-icon" href="assets/og/apple-touch-onze.png">
+<!-- everything local: fonts vendored (see assets/vendor/fonts/fonts.css) and NO script libraries
+     at all — the exit wipe below is pure CSS transitions, so this page can never have a dead
+     CTA from a missing CDN again (the old GSAP-from-cdnjs version threw on click when offline,
+     after preventDefault had already eaten the navigation). Prefetch warms the deck + its
+     poster while the Chairman reads the greeting. -->
+<link rel="stylesheet" href="assets/vendor/fonts/fonts.css">
+<link rel="stylesheet" href="theme/onze-tokens.css">
+<link rel="prefetch" href="collective-xi.html">
+<link rel="prefetch" href="assets/imagery/optimized/cold-open-poster.webp">
 <style>
-  *{ box-sizing:border-box; margin:0; padding:0; }
-  html,body{ height:100%; height:100dvh; overflow:hidden; overscroll-behavior:none; }
-  body{ background:#0c0a08; color:var(--onze-on-dark); font-family:var(--onze-font); -webkit-font-smoothing:antialiased;
-    position:fixed; inset:0; width:100%; height:100%; height:100dvh;
-    --onze-center-gap:clamp(20px,3vw,40px); }
-
-  /* intro reveal — icon first */
-  #intro{ position:fixed; inset:0; z-index:100; background:#0c0a08; display:flex; align-items:center; justify-content:center;
-    animation:introOut .9s ease 1.7s forwards; }
-  #intro img{ width:132px; height:auto; opacity:0; transform:scale(.82); animation:iconIn 1s cubic-bezier(.2,.7,.2,1) .15s forwards; }
-  @keyframes iconIn{ to{ opacity:1; transform:scale(1); } }
-  @keyframes introOut{ to{ opacity:0; visibility:hidden; } }
-
-  /* faint crosshair (ONZE take on the competitor grid) */
-  .cross{ position:fixed; inset:0; z-index:2; pointer-events:none; }
-  .cross::before,.cross::after{ content:""; position:absolute; background:rgba(255,255,255,.08); }
-  .cross::before{ left:50%; top:0; bottom:0; width:1px; }
-  .cross::after{ top:50%; left:0; right:0; height:1px; }
-  .cross .dot{ position:absolute; left:50%; top:50%; width:7px; height:7px; border-radius:50%; transform:translate(-50%,-50%);
-    background:var(--onze-accent); box-shadow:0 0 12px 1px rgba(255,31,107,.6); }
-
-  /* imagery in the right two quadrants */
-  .quad-img{ position:fixed; top:0; bottom:0; left:35%; right:0; z-index:1; overflow:hidden; opacity:0; animation:fadeIn 1.5s ease 2.1s forwards; }
-  .quad-img::before{ content:""; position:absolute; inset:0; background:url("assets/imagery/hero/hero-duo-loop-v2-poster.jpg") 70% center/cover;
-    transform:scale(1.12); animation:drift 32s ease-in-out infinite alternate; }
-  .quad-img video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:70% center; }
-  .quad-img::after{ content:""; position:absolute; inset:0;
-    background:linear-gradient(90deg, #0c0a08 0%, rgba(12,10,8,.6) 14%, rgba(12,10,8,.2) 46%, rgba(12,10,8,.5) 100%),
-               linear-gradient(0deg, rgba(12,10,8,.55) 0%, rgba(12,10,8,0) 32%); }
-  @keyframes fadeIn{ to{ opacity:1; } }
-  @keyframes drift{ from{ transform:scale(1.12) translate(0,0); } to{ transform:scale(1.2) translate(-2.6%,-2.6%); } }
-  @media (max-width:820px){
-    .quad-img{ left:0; }                                  /* full-bleed dimmed backdrop behind the text */
-    .quad-img::before{ background-image:url("assets/imagery/hero/hero-locs-mobile-poster.jpg"); background-position:center; }
-    .quad-img video{ object-position:center; }
-    .quad-img::after{ background:linear-gradient(0deg, rgba(12,10,8,.92) 0%, rgba(12,10,8,.78) 55%, rgba(12,10,8,.55) 100%); }
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    background: var(--color-ground);
+    overflow: hidden;
   }
 
-  header{ position:fixed; top:0; left:0; right:0; z-index:10; display:flex; justify-content:space-between; align-items:center;
-    padding:30px clamp(28px,5vw,64px); padding-top:calc(30px + env(safe-area-inset-top)); }
-  header img{ height:40px; display:block; }              /* logo — bigger than the competitor */
-  .top-contact{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; font-weight:600; color:var(--onze-on-dark-mute); text-decoration:none; }
-  .top-contact:hover{ color:var(--onze-accent); }
+  .icon-stack {
+    --icon-big: clamp(140px, 32vmin, 260px);
 
-  .top-link{ position:fixed; top:50px; transform:translateY(-50%); z-index:10; font-size:12px; letter-spacing:.16em; text-transform:uppercase; font-weight:600;
-    color:var(--onze-on-dark-mute); text-decoration:none; }
-  .top-link:hover{ color:var(--onze-accent); }
-  .top-link.players{ right:calc(50% + var(--onze-center-gap)); }
-  .top-link.federations{ left:calc(50% + var(--onze-center-gap)); }
-  /* hamburger + full-screen menu — mobile only */
-  .burger{ display:none; position:relative; width:40px; height:40px; background:none; border:0; cursor:pointer; padding:0; margin-right:-8px; }
-  .burger span{ position:absolute; left:9px; right:9px; height:2px; background:#fff; transition:transform .3s ease, opacity .25s ease, top .3s ease; }
-  .burger span:nth-child(1){ top:14px; }
-  .burger span:nth-child(2){ top:20px; }
-  .burger span:nth-child(3){ top:26px; }
-  .burger.open span:nth-child(1){ top:20px; transform:rotate(45deg); }
-  .burger.open span:nth-child(2){ opacity:0; }
-  .burger.open span:nth-child(3){ top:20px; transform:rotate(-45deg); }
-  .mnav{ position:fixed; inset:0; z-index:9; background:rgba(12,10,8,.96);
-    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:40px;
-    opacity:0; pointer-events:none; transition:opacity .3s ease; }
-  .mnav.open{ opacity:1; pointer-events:auto; }
-  .mnav a{ font-size:20px; font-weight:800; letter-spacing:.2em; text-transform:uppercase;
-    color:var(--onze-on-dark); text-decoration:none; }
-  .mnav a:hover, .mnav a:active{ color:var(--onze-accent); }
-  .mnav-cities{ position:absolute; bottom:26px; left:0; right:0; text-align:center;
-    font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgba(250,247,240,.4); }
-  @media (max-width:820px){
-    .top-link{ display:none; }
-    .top-contact{ display:none; }
-    .burger{ display:block; }
-    /* the centered column can be taller than the viewport once the (hidden, space-reserving)
-       paragraphs are counted, pushing its top edge — and so the "loading" text anchored there —
-       up behind the fixed header/logo. Reserve clearance instead of relying on centering alone. */
-    /* flex-start, not center: centering makes .col's top edge depend on its rendered content
-       height (which includes the still-hidden paragraphs, since visibility:hidden reserves
-       space) — on some devices/text-size settings that height is tall enough to push the top
-       edge back up past the padding reservation below, right into the header/notch again.
-       flex-start anchors the top edge at a fixed, content-independent offset instead. */
-    main{ align-items:flex-start; padding-top:calc(160px + env(safe-area-inset-top)); padding-bottom:40px; }
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: var(--icon-big);
+    height: var(--icon-big);
+    transform: translate(-50%, -50%);
+    animation: icon-fade-out 800ms ease-out 1400ms forwards;
   }
 
-  /* glass modal — shared by federations deck + players teaser */
-  /* absolute, not fixed — body is already position:fixed and covers the viewport, so this still
-     sizes to the full screen. Avoids stacking a second fixed-position ancestor above the deck
-     iframe, which iOS Safari can fail to delegate touch-scroll gestures through. */
-  .glass-modal{ position:absolute; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
-    opacity:0; pointer-events:none; transition:opacity .35s ease; }
-  .glass-modal.open{ opacity:1; pointer-events:auto; }
-  .glass-modal-backdrop{ position:absolute; inset:0; background:rgba(12,10,8,.6);
-    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
-  .glass-panel{ position:relative; width:min(960px,90vw); height:min(640px,86vh); border-radius:20px; overflow:hidden;
-    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16);
-    box-shadow:0 0 0 1px rgba(255,31,107,.28), 0 30px 80px rgba(0,0,0,.55), 0 0 60px rgba(255,31,107,.18);
-    backdrop-filter:blur(24px) saturate(150%); -webkit-backdrop-filter:blur(24px) saturate(150%);
-    transform:scale(.96) translateY(10px); transition:transform .4s cubic-bezier(.2,.8,.2,1); }
-  .glass-modal.open .glass-panel{ transform:scale(1) translateY(0); }
-  /* iOS Safari won't delegate touch-scroll into a nested iframe while an ancestor keeps a live
-     transform (even a no-op scale(1)/translateY(0)) — drop it once the open transition settles. */
-  .glass-panel.settled{ transform:none; }
-  .glass-panel::before{ content:""; position:absolute; top:0; left:0; right:0; height:2px; z-index:2;
-    background:linear-gradient(90deg, transparent, var(--onze-accent), transparent); }
-  .glass-close{ position:absolute; top:14px; right:16px; z-index:3; width:32px; height:32px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
-    color:var(--onze-on-dark-mute); font-size:18px; line-height:1; cursor:pointer;
-    transition:color .2s ease, border-color .2s ease, background .2s ease; }
-  .glass-close:hover{ color:var(--onze-accent); border-color:rgba(255,31,107,.5); background:rgba(255,31,107,.1); }
-  .embed-frame{ position:relative; z-index:1; width:100%; height:100%; border:0; display:block; background:transparent; }
-  @media (max-width:820px){ .glass-panel{ width:94vw; height:80vh; border-radius:14px; } }
-
-  /* contact form */
-  .contact-panel{ width:min(560px,92vw); height:auto; max-height:86vh; overflow-y:auto;
-    padding:52px clamp(24px,6vw,48px) 40px; display:block; }
-  @media (max-width:820px){ .contact-panel{ width:94vw; height:auto; max-height:88vh; } }
-  .cf-eyebrow{ color:var(--onze-accent); font-size:12px; letter-spacing:.24em; text-transform:uppercase;
-    font-weight:700; display:flex; align-items:center; gap:12px; margin-bottom:14px; }
-  .cf-eyebrow::before{ content:""; width:22px; height:2px; background:var(--onze-accent); }
-  .cf-title{ font-family:var(--onze-font); font-weight:800; text-transform:uppercase;
-    font-size:clamp(24px,3vw,32px); letter-spacing:-.02em; color:#fff; margin-bottom:28px; }
-  .cf-row{ display:flex; gap:16px; }
-  .cf-row .cf-field{ flex:1; min-width:0; }
-  .cf-field{ display:flex; flex-direction:column; gap:7px; font-size:11px; letter-spacing:.12em;
-    text-transform:uppercase; font-weight:700; color:var(--onze-on-dark-mute); margin-bottom:16px; }
-  .cf-field i{ text-transform:none; letter-spacing:0; font-weight:400; opacity:.6; font-style:normal; }
-  .cf-field input, .cf-field select, .cf-field textarea{
-    font-family:var(--onze-font); font-size:14.5px; font-weight:400; letter-spacing:0; text-transform:none;
-    color:#fff; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16); border-radius:2px;
-    padding:11px 13px; outline:none; transition:border-color .2s ease, background .2s ease, box-shadow .2s ease; }
-  .cf-field input::placeholder, .cf-field textarea::placeholder{ color:rgba(250,247,240,.35); }
-  .cf-field input:focus, .cf-field select:focus, .cf-field textarea:focus{
-    border-color:var(--onze-accent); background:rgba(255,255,255,.09); box-shadow:0 0 0 3px rgba(255,31,107,.16); }
-  .cf-field select{ appearance:none; -webkit-appearance:none;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ffffff' fill-opacity='.5'/%3E%3C/svg%3E");
-    background-repeat:no-repeat; background-position:right 13px center; padding-right:32px; }
-  .cf-field select option{ background:#191613; color:#fff; }
-  .cf-field textarea{ resize:vertical; min-height:96px; font-family:var(--onze-font); }
-  .cf-submit{ font-family:var(--onze-font); font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
-    color:#fff; background:var(--onze-accent); border:none; border-radius:2px; padding:14px 30px; cursor:pointer;
-    transition:background .2s ease; }
-  .cf-submit:hover{ background:var(--onze-accent-press); }
-  .cf-submit:disabled{ opacity:.55; cursor:default; }
-  .cf-status{ margin-top:14px; font-size:12.5px; color:var(--onze-on-dark-mute); min-height:1.4em; }
-  .cf-status.ok{ color:var(--onze-accent); }
-  .cf-status.err{ color:#FF6B6B; }
-  @media (max-width:560px){ .cf-row{ flex-direction:column; gap:0; } }
-
-  main{ position:relative; z-index:5; height:100%; display:flex; align-items:center; padding:0 clamp(28px,5vw,64px); }
-  .col{ max-width:600px; position:relative; }
-  @keyframes rise{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:none; } }
-  .eyebrow{ color:var(--onze-accent); font-size:12px; letter-spacing:.24em; text-transform:uppercase; font-weight:700;
-    display:flex; align-items:center; gap:12px; margin-bottom:34px; }
-  .eyebrow::before{ content:""; width:26px; height:2px; background:var(--onze-accent); }
-  .col p{ font-size:15.5px; line-height:1.78; color:rgba(250,247,240,.80); font-weight:400; }
-  .col p + p{ margin-top:20px; }
-  .col p b{ color:#fff; font-weight:600; }
-
-  .foot{ position:fixed; bottom:26px; z-index:5; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgba(250,247,240,.4); }
-  .foot-left{ right:calc(50% + var(--onze-center-gap)); }
-  .foot-right{ left:calc(50% + var(--onze-center-gap)); }
-
-  /* typewriter */
-  html.typing .eyebrow, html.typing .col p{ visibility:hidden; }
-  .caret{ display:inline-block; width:2px; height:1.02em; background:var(--onze-accent); margin-left:2px; vertical-align:-.14em;
-    box-shadow:0 0 8px rgba(255,31,107,.7); animation:blink 1s steps(1) infinite; }
-  @keyframes blink{ 50%{ opacity:0; } }
-  .loading{ position:absolute; top:0; left:0; display:none; font-size:12px; letter-spacing:.26em; text-transform:uppercase; font-weight:600; color:rgba(250,247,240,.62); }
-  .loading.show{ display:block; }
-  .load-bar{ position:absolute; top:27px; left:0; width:118px; height:2px; background:rgba(255,255,255,.12); display:none; overflow:hidden; }
-  .load-bar.show{ display:block; }
-  .load-bar::after{ content:""; display:block; height:100%; width:0; background:var(--onze-accent); box-shadow:0 0 8px rgba(255,31,107,.6); }
-  .load-bar.fill::after{ width:100%; transition:width 6.9s linear; }
-  .skip-hint{ position:fixed; right:clamp(28px,5vw,64px); bottom:26px; z-index:6; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgba(250,247,240,.36); opacity:0; transition:opacity .8s ease; pointer-events:none; }
-  .skip-hint.show{ opacity:1; }
-
-  @media (prefers-reduced-motion: reduce){
-    #intro{ display:none; } .col,.foot,.quad-img{ animation:none; opacity:1; transform:none; } .quad-img::before{ animation:none; transform:scale(1.12); }
-    .quad-img video{ display:none; }
+  @keyframes icon-fade-out {
+    to { opacity: 0; }
   }
-  @media (max-width:560px){
-    .cross::before{ display:none; }
-    header img{ height:30px; }
-    .top-contact{ font-size:11px; letter-spacing:.12em; }
-    .foot{ font-size:10px; letter-spacing:.14em; }
-    .foot-left{ right:calc(50% + 12px); }
-    .foot-right{ left:calc(50% + 12px); }
-    .skip-hint{ right:50%; transform:translateX(50%); bottom:58px; white-space:nowrap; }
+
+  .icon-stack img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+
+  .icon-stack img.layer-1 { animation: flash 1750ms 0ms forwards; }
+  .icon-stack img.layer-2 { animation: flash 1750ms 350ms forwards; }
+  .icon-stack img.layer-3 { animation: flash 1750ms 700ms forwards; }
+  .icon-stack img.layer-4 { animation: flash 1750ms 1050ms forwards; }
+  .icon-stack img.layer-5 { animation: flash-in 100ms 1400ms forwards; }
+
+  @keyframes flash {
+    0%     { opacity: 1; }
+    20%    { opacity: 1; }
+    20.01% { opacity: 0; }
+    100%   { opacity: 0; }
+  }
+
+  @keyframes flash-in {
+    0%     { opacity: 0; }
+    0.02%  { opacity: 1; }
+    100%   { opacity: 1; }
+  }
+
+  .logo-stack {
+    position: fixed;
+    top: clamp(16px, 4vmin, 40px);
+    left: clamp(16px, 4vmin, 40px);
+    height: clamp(28px, 7vmin, 56px);
+    aspect-ratio: 1598 / 467;
+  }
+
+  .logo-stack img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+
+  .logo-stack img.layer-1 { animation: flash 1750ms 2200ms forwards; }
+  .logo-stack img.layer-2 { animation: flash 1750ms 2550ms forwards; }
+  .logo-stack img.layer-3 { animation: flash 1750ms 2900ms forwards; }
+  .logo-stack img.layer-4 { animation: flash 1750ms 3250ms forwards; }
+  .logo-stack img.layer-5 { animation: flash-in 100ms 3600ms forwards; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .icon-stack { display: none; }
+    .logo-stack img { animation: none; opacity: 0; }
+    .logo-stack img.layer-5 { opacity: 1; }
+  }
+
+  .typewriter {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(90vw, 42ch);
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(14px, 2.2vw, 19px);
+    line-height: 1.7;
+    color: var(--color-ink);
+  }
+
+  .tw-target { margin: 0; min-height: 1.7em; }
+
+  .tw-cta { margin-top: 0.5em; }
+
+  .tw-link {
+    display: inline-block;
+    color: var(--color-ember);
+    text-decoration: none;
+    border-bottom: 1.5px solid transparent;
+    pointer-events: none;
+  }
+
+  /* ---- the exit: ONZE's diagonal-cut card edge, turned into motion. Five skewed panels
+     sweep across in the fixed accent order (Ember → Ochre → Brass → Indigo), and the last
+     lands Pitch green — the one deliberate cross-system color, the bridge INTO Collective XI
+     (the deck opens under a matching green cover that fades; see collective-xi.html's
+     .arrival-cover). Oversized + skewX(-14deg) so the leading edge is the brand diagonal. ---- */
+  .wipe {
+    position: fixed;
+    top: -10vh;
+    bottom: -10vh;
+    left: -40vw;
+    width: 180vw;
+    transform: translateX(-190vw) skewX(-14deg);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  .wipe.sweep { transition: transform .55s cubic-bezier(.7, .05, .25, 1); transform: translateX(-20vw) skewX(-14deg); }
+  .w1 { background: var(--color-ember); }
+  .w2 { background: var(--color-ochre); }
+  .w3 { background: var(--color-brass); }
+  .w4 { background: var(--color-indigo); }
+  .w5 { background: #1F5C3F; } /* Collective XI Pitch — the landing color, not an ONZE token */
+
+  /* the old GSAP back.out link pop, as a one-shot CSS keyframe added on click */
+  .tw-link.pop { animation: cta-pop .45s cubic-bezier(.34, 1.56, .64, 1); }
+  @keyframes cta-pop { 35% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
+  .tw-link.tw-active {
+    pointer-events: auto;
+    cursor: pointer;
+    border-bottom-color: var(--color-ember);
+  }
+
+  .tw-link.tw-active:hover { color: var(--color-ochre); border-bottom-color: var(--color-ochre); }
+
+  .tw-cursor {
+    display: inline-block;
+    margin-left: 1px;
+    animation: tw-blink 1s steps(1) infinite;
+  }
+
+  @keyframes tw-blink { 50% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tw-cursor { display: none; }
+  }
+
+  /* the greeting takes ~25s to type — impatient or returning viewers can skip (see script).
+     Hint arrives quietly once the typing rhythm is established, leaves when typing ends. */
+  .tw-skip-hint {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: rgba(20, 23, 15, .45);
+    opacity: 0;
+    animation: hint-in .6s ease 2.5s forwards;
+    pointer-events: none;
+  }
+  @keyframes hint-in { to { opacity: 1; } }
+  .tw-skip-hint.gone { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .tw-skip-hint { display: none; }
   }
 </style>
 </head>
 <body>
-
-<div id="intro"><img src="assets/brand/logo/icon/onze-icon-white.png" alt="ONZE"></div>
-
-<div class="quad-img">
-  <video id="heroVideo" autoplay muted loop playsinline aria-hidden="true"></video>
-</div>
-<script>
-(function(){
-  // JS-driven source selection, not <source media> — Safari/WebKit has long-standing bugs
-  // picking the wrong <source> based on its media attribute (this is exactly how an iPhone
-  // ended up playing the desktop AI duo video instead of the mobile real-footage clip; Android
-  // Chrome evaluated the same markup correctly). A single matchMedia check in JS is reliable
-  // everywhere.
-  const isMobile = matchMedia('(max-width:820px)').matches;
-  const base = isMobile ? 'assets/imagery/hero/video/hero-locs-mobile-loop' : 'assets/imagery/hero/video/hero-duo-loop-v2';
-  const poster = isMobile ? 'assets/imagery/hero/hero-locs-mobile-poster.jpg' : 'assets/imagery/hero/hero-duo-loop-v2-poster.jpg';
-  const video = document.getElementById('heroVideo');
-  video.poster = poster;
-  ['webm','mp4'].forEach(ext => {
-    const s = document.createElement('source');
-    s.src = base + '.' + ext;
-    s.type = 'video/' + ext;
-    video.appendChild(s);
-  });
-  video.load();
-})();
-</script>
-<div class="cross"><span class="dot"></span></div>
-
-<header>
-  <img id="homeLogo" src="assets/brand/logo/horizontal/onze-horizontal-white.png" alt="ONZE Sports Management" style="cursor:pointer">
-  <a class="top-contact" href="#contact">Contact</a>
-  <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
-</header>
-
-<nav class="mnav" id="mnav" aria-hidden="true">
-  <a href="players.html" id="mPlayers">Players</a>
-  <a href="decks/seychelles/onze-seychelles-edit.html" id="mFederations">Federations</a>
-  <a href="#contact" id="mContact">Contact</a>
-  <div class="mnav-cities">Amsterdam · Willemstad · Paramaribo · Rabat</div>
-</nav>
-
-<a class="top-link players" href="players.html">Players</a>
-<a class="top-link federations" href="decks/seychelles/onze-seychelles-edit.html">Federations</a>
-
-<main>
-  <div class="col">
-    <div class="loading" id="loading">loading</div>
-    <div class="load-bar" id="loadBar"></div>
-    <div class="eyebrow">Sports management — Est. 2026</div>
-    <p>Founded in 2026 by FIFA-licensed agent <b>Francisco de Miranda</b>, ONZE Sports Management is a boutique football representation agency. Dutch-built and Caribbean-rooted, it was created on a single principle that has not changed since: stay close to every client — every player, every family, every association.</p>
-    <p>We represent footballers and the federations of small nations. By design the roster stays small and hand-picked: we take on few, and once we commit, we commit completely.</p>
-    <p>Our service is bespoke to each client. We advise across contract and transfer, legal, financial and tax, medical and performance, and image and brand — alongside the everyday matters of a life in the game. Quietly, thoroughly, and for the long term.</p>
+  <div class="icon-stack">
+    <img class="layer-1" src="assets/generated/icon-flash/onze-icon-ember.png" alt="">
+    <img class="layer-2" src="assets/generated/icon-flash/onze-icon-ochre.png" alt="">
+    <img class="layer-3" src="assets/generated/icon-flash/onze-icon-brass.png" alt="">
+    <img class="layer-4" src="assets/generated/icon-flash/onze-icon-indigo.png" alt="">
+    <img class="layer-5" src="assets/brand/logo/icon/onze-icon-black.png" alt="">
   </div>
-</main>
+  <div class="logo-stack">
+    <img class="layer-1" src="assets/generated/icon-flash/onze-horizontal-ember.png" alt="">
+    <img class="layer-2" src="assets/generated/icon-flash/onze-horizontal-ochre.png" alt="">
+    <img class="layer-3" src="assets/generated/icon-flash/onze-horizontal-brass.png" alt="">
+    <img class="layer-4" src="assets/generated/icon-flash/onze-horizontal-indigo.png" alt="">
+    <img class="layer-5" src="assets/brand/logo/horizontal/onze-horizontal-black.png" alt="ONZE">
+  </div>
+
+  <div class="typewriter" aria-live="polite">
+    <p class="tw-target" data-text="Hello there, Elvis."></p>
+    <p class="tw-target" data-text="We want to present you with something..."></p>
+    <p class="tw-target" data-text="It's called Collective XI."></p>
+    <p class="tw-target" data-text="A football federation cooperative ran by you and your peers."></p>
+    <p class="tw-target" data-text="Together, preparing a brand new football journey."></p>
+    <p class="tw-target" data-text="And guess what...."></p>
+    <p class="tw-target" data-text="We see you leading the way."></p>
+    <p class="tw-cta"><a href="collective-xi.html" class="tw-target tw-link" tabindex="-1" data-text="Press here to enter."></a></p>
+  </div>
+
+  <p class="tw-skip-hint" id="skipHint">click anywhere to skip</p>
+
+  <div class="wipe w1"></div>
+  <div class="wipe w2"></div>
+  <div class="wipe w3"></div>
+  <div class="wipe w4"></div>
+  <div class="wipe w5"></div>
 
 <script>
-(function(){
-  // Measure the header's ACTUAL rendered height (includes safe-area/notch effects already)
-  // rather than guessing a padding value in CSS — four rounds of guessed pixel/env() values
-  // still weren't reliably enough clearance on real iPhone hardware, and real measurement
-  // removes the guesswork entirely.
-  function positionMain(){
-    if(!matchMedia('(max-width:820px)').matches) return;
-    const headerBottom = document.querySelector('header').getBoundingClientRect().bottom;
-    document.querySelector('main').style.paddingTop = (headerBottom + 48) + 'px';
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var targets = Array.prototype.slice.call(document.querySelectorAll('.tw-target'));
+  var link = document.querySelector('.tw-link');
+
+  function activateLink() {
+    link.removeAttribute('tabindex');
+    link.classList.add('tw-active');
   }
-  positionMain();
-  addEventListener('resize', positionMain);
-})();
-</script>
 
-<div class="foot foot-left">Amsterdam · Willemstad</div>
-<div class="foot foot-right">Paramaribo · Rabat</div>
-<div class="skip-hint" id="skipHint">click anywhere to skip</div>
+  var skipHint = document.getElementById('skipHint');
+  var typingDone = false;
 
-<div class="glass-modal" id="deckModal" aria-hidden="true">
-  <div class="glass-modal-backdrop" data-close></div>
-  <div class="glass-panel" role="dialog" aria-modal="true" aria-label="ONZE × Seychelles federation deck">
-    <button class="glass-close" type="button" aria-label="Close" data-close>&times;</button>
-    <iframe class="embed-frame" title="ONZE × Seychelles — Collective XI"></iframe>
-  </div>
-</div>
+  function renderAllInstant() {
+    typingDone = true;
+    targets.forEach(function (el) { el.textContent = el.getAttribute('data-text'); });
+    activateLink();
+    if (skipHint) skipHint.classList.add('gone');
+    try { sessionStorage.setItem('onze-typed', '1'); } catch (err) {}
+  }
 
-<div class="glass-modal" id="playersModal" aria-hidden="true">
-  <div class="glass-modal-backdrop" data-close></div>
-  <div class="glass-panel" role="dialog" aria-modal="true" aria-label="Players">
-    <button class="glass-close" type="button" aria-label="Close" data-close>&times;</button>
-    <iframe class="embed-frame" title="ONZE — Players"></iframe>
-  </div>
-</div>
+  var alreadyGreeted = false;
+  try { alreadyGreeted = !!sessionStorage.getItem('onze-typed'); } catch (err) {}
 
-<div class="glass-modal" id="contactModal" aria-hidden="true">
-  <div class="glass-modal-backdrop" data-close></div>
-  <div class="glass-panel contact-panel" role="dialog" aria-modal="true" aria-label="Contact ONZE">
-    <button class="glass-close" type="button" aria-label="Close" data-close>&times;</button>
-    <form class="contact-form" id="contactForm" action="https://formspree.io/f/mdarjnqj" method="POST">
-      <div class="cf-eyebrow">Get in touch</div>
-      <h3 class="cf-title">Let's talk.</h3>
-      <div class="cf-row">
-        <label class="cf-field"><span>Name</span><input type="text" name="name" required autocomplete="name"></label>
-        <label class="cf-field"><span>Email</span><input type="email" name="email" required autocomplete="email"></label>
-      </div>
-      <div class="cf-row">
-        <label class="cf-field"><span>I am a...</span>
-          <select name="category" required>
-            <option value="" disabled selected>Select one</option>
-            <option>Player / Family</option>
-            <option>Federation</option>
-            <option>Sponsor</option>
-            <option>Media</option>
-            <option>Other</option>
-          </select>
-        </label>
-        <label class="cf-field"><span>Favourite club <i>(just for fun)</i></span><input type="text" name="favourite_club" autocomplete="off"></label>
-      </div>
-      <label class="cf-field"><span>Message</span><textarea name="message" rows="4" required></textarea></label>
-      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" aria-hidden="true">
-      <input type="hidden" name="_subject" value="New enquiry — onzesite.com contact form">
-      <button type="submit" class="cf-submit">Send</button>
-      <div class="cf-status" id="cfStatus" role="status" aria-live="polite"></div>
-    </form>
-  </div>
-</div>
+  if (reduceMotion || alreadyGreeted) {
+    // reduced-motion viewers and RETURNING visitors (e.g. back from the deck) get the greeting
+    // instantly — nobody sits through the 25s typewriter twice.
+    renderAllInstant();
+  } else {
+    var cursor = document.createElement('span');
+    cursor.className = 'tw-cursor';
+    cursor.textContent = '|';
 
-<script>
-(function(){
-  // hamburger menu (mobile)
-  const burger = document.getElementById('burger');
-  const mnav = document.getElementById('mnav');
-  const setMenu = o => { burger.classList.toggle('open', o); mnav.classList.toggle('open', o);
-    mnav.setAttribute('aria-hidden', String(!o)); burger.setAttribute('aria-expanded', String(o)); };
-  const closeMenu = () => setMenu(false);
-  burger.addEventListener('click', ()=> setMenu(!mnav.classList.contains('open')));
-  document.getElementById('mContact').addEventListener('click', closeMenu);
-  addEventListener('keydown', e=>{ if(e.key==='Escape') closeMenu(); });
+    // Parallel to `targets`: index of a character to "mistype" and correct, or null for a clean line.
+    var typoIndices = [1, null, null, 4, null, null, 13, null];
 
-  function wireModal(modal, triggers, onOpen, guard){
-    const panel = modal.querySelector('.glass-panel');
-    const open = () => {
-      if(onOpen) onOpen();
-      modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
-      let settledYet = false;
-      const settle = () => { if(settledYet) return; settledYet = true; panel.classList.add('settled'); };
-      panel.addEventListener('transitionend', function onSettled(e){
-        if(e.propertyName === 'transform'){ settle(); panel.removeEventListener('transitionend', onSettled); }
-      });
-      setTimeout(settle, 500); // fallback in case transitionend doesn't fire
+    var neighbors = {
+      a: 's', b: 'v', c: 'x', d: 's', e: 'w', f: 'd', g: 'f', h: 'g', i: 'o', j: 'k',
+      k: 'j', l: 'k', m: 'n', n: 'm', o: 'i', p: 'o', q: 'w', r: 'e', s: 'a', t: 'r',
+      u: 'y', v: 'c', w: 'e', x: 'c', y: 'u', z: 'x'
     };
-    const close = () => { panel.classList.remove('settled'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); };
-    triggers.forEach(t => t.addEventListener('click', e=>{
-      if(guard && !guard()) return; // mobile: let the link navigate to the real page instead
-      e.preventDefault(); closeMenu(); open();
-    }));
-    modal.querySelectorAll('[data-close]').forEach(el=> el.addEventListener('click', close));
-    addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
-  }
-  // Desktop: Federations/Players open in an iframe-in-modal (nice in-context viewing, and each
-  // page's own iframe has nothing that needs to scroll further than the modal already fits).
-  // Mobile: both navigate to the real page directly instead. iOS Safari has a stubborn,
-  // never-fully-resolved bug where touch-scroll doesn't reliably reach content nested inside an
-  // iframe inside a modal — several targeted CSS/JS mitigations didn't fix it in practice, so
-  // mobile sidesteps the whole bug class rather than fight it further. Same guard, same pattern,
-  // for both sections — consistency was the whole point.
-  const isMobile = () => matchMedia('(max-width:820px)').matches;
 
-  const deckModal = document.getElementById('deckModal');
-  const deckFrame = deckModal.querySelector('.embed-frame');
-  const fedLink = document.querySelector('.top-link.federations');
-  wireModal(deckModal, [fedLink, document.getElementById('mFederations')],
-    () => { if(!deckFrame.src) deckFrame.src = fedLink.getAttribute('href'); },
-    () => !isMobile());
+    function typoFor(ch) {
+      var lower = ch.toLowerCase();
+      var swap = neighbors[lower];
+      if (!swap) return ch;
+      return ch === lower ? swap : swap.toUpperCase();
+    }
 
-  const playersModal = document.getElementById('playersModal');
-  const playersFrame = playersModal.querySelector('.embed-frame');
-  const playersLink = document.querySelector('.top-link.players');
-  wireModal(playersModal, [playersLink, document.getElementById('mPlayers')],
-    () => { if(!playersFrame.src) playersFrame.src = playersLink.getAttribute('href'); },
-    () => !isMobile());
-
-  // contact form modal
-  const contactModal = document.getElementById('contactModal');
-  const contactForm = document.getElementById('contactForm');
-  const cfStatus = document.getElementById('cfStatus');
-  wireModal(contactModal, [document.querySelector('.top-contact'), document.getElementById('mContact')],
-    () => { cfStatus.textContent = ''; cfStatus.className = 'cf-status'; });
-
-  contactForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = contactForm.querySelector('.cf-submit');
-    btn.disabled = true;
-    cfStatus.textContent = 'Sending…'; cfStatus.className = 'cf-status';
-    try {
-      const res = await fetch(contactForm.action, {
-        method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        body: new FormData(contactForm)
-      });
-      if (res.ok) {
-        cfStatus.textContent = "Thanks — we'll be in touch.";
-        cfStatus.className = 'cf-status ok';
-        contactForm.reset();
-      } else {
-        cfStatus.textContent = 'Something went wrong — try again, or email us directly.';
-        cfStatus.className = 'cf-status err';
+    function buildFrames(text, typoAt) {
+      var frames = [];
+      var current = '';
+      for (var i = 0; i < text.length; i++) {
+        if (i === typoAt) {
+          current += typoFor(text[i]);
+          frames.push({ text: current, delay: 400 });
+          current = current.slice(0, -1);
+          frames.push({ text: current, delay: 200 });
+        }
+        current += text[i];
+        frames.push({ text: current, delay: 65 });
       }
-    } catch (err) {
-      cfStatus.textContent = 'Something went wrong — try again, or email us directly.';
-      cfStatus.className = 'cf-status err';
-    } finally {
-      btn.disabled = false;
+      return frames;
     }
-  });
 
-  // logo = "home": closes whatever modal is open, returning to the clean landing view.
-  document.getElementById('homeLogo').addEventListener('click', () => {
-    [deckModal, playersModal, contactModal].forEach(m => {
-      if(!m.classList.contains('open')) return;
-      const panel = m.querySelector('.glass-panel');
-      if(panel) panel.classList.remove('settled');
-      m.classList.remove('open'); m.setAttribute('aria-hidden','true');
+    function typeLine(index) {
+      if (typingDone) return; // a skip finished everything already
+      if (index >= targets.length) {
+        typingDone = true;
+        activateLink();
+        targets[targets.length - 1].appendChild(cursor);
+        if (skipHint) skipHint.classList.add('gone');
+        try { sessionStorage.setItem('onze-typed', '1'); } catch (err) {}
+        return;
+      }
+      var el = targets[index];
+      var text = el.getAttribute('data-text');
+      var frames = buildFrames(text, typoIndices[index]);
+      var frameIndex = 0;
+
+      function playFrame() {
+        if (typingDone) return;
+        if (frameIndex >= frames.length) {
+          setTimeout(function () { typeLine(index + 1); }, 600);
+          return;
+        }
+        var frame = frames[frameIndex];
+        el.textContent = frame.text;
+        el.appendChild(cursor);
+        frameIndex++;
+        setTimeout(playFrame, frame.delay);
+      }
+      playFrame();
+    }
+
+    setTimeout(function () { typeLine(0); }, 3700);
+
+    // click/tap/keypress anywhere fast-forwards the whole greeting (the CTA's own click still
+    // navigates — it's only clickable once active, at which point typing is already done)
+    function skipTyping() {
+      if (typingDone) return;
+      if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+      renderAllInstant();
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('.tw-link')) return;
+      skipTyping();
     });
-  });
-})();
-</script>
-
-<script>
-(function(){
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // static text, no typing
-  let skip=false;
-  const sleep = ms => new Promise(r=>setTimeout(r,ms));
-  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const segsFromEl = el => { const o=[]; el.childNodes.forEach(n=>{ if(n.nodeType===1 && n.tagName==='B') o.push({t:n.textContent,b:1}); else o.push({t:n.textContent}); }); return o; };
-  const render = chars => { let h='',open=false; for(const c of chars){ if(c.b&&!open){h+='<b>';open=true;} else if(!c.b&&open){h+='</b>';open=false;} h+=esc(c.ch);} if(open)h+='</b>'; return h; };
-  const segHTML = segs => segs.map(s=> s.b ? '<b>'+esc(s.t)+'</b>' : esc(s.t)).join('');
-  const delayFor = ch => { if('.!?'.includes(ch)) return 190; if(',;:—'.includes(ch)) return 85; return 11 + Math.random()*13; };
-  async function typeInto(el, segs, speed=1, keepCaret=false){
-    el.style.visibility='visible';
-    const flat=[]; for(const s of segs) for(const ch of s.t) flat.push({ch,b:!!s.b});
-    if(skip){ el.innerHTML = render(flat) + (keepCaret?'<span class="caret"></span>':''); return; }
-    for(let i=0;i<=flat.length;i++){
-      if(skip){ el.innerHTML = render(flat) + (keepCaret?'<span class="caret"></span>':''); return; }
-      el.innerHTML = render(flat.slice(0,i)) + '<span class="caret"></span>';
-      if(i<flat.length) await sleep(delayFor(flat[i].ch)*speed);
-    }
-    if(!keepCaret){ const c=el.querySelector('.caret'); if(c) c.remove(); }
+    document.addEventListener('keydown', skipTyping);
   }
-  const eyebrow = document.querySelector('.eyebrow');
-  const ps = [...document.querySelectorAll('.col p')];
-  const loading = document.getElementById('loading');
-  const loadBar = document.getElementById('loadBar');
-  const skipHint = document.getElementById('skipHint');
-  const eSeg = segsFromEl(eyebrow);
-  const pSeg = ps.map(segsFromEl);
 
-  // (3) session memory — REMOVED for now (kept out so the reveal replays on every load, for design review).
-  //     To re-enable later, wrap the reveal: if(sessionStorage.getItem('onze_seen')){ show instantly via segHTML(); return; } else sessionStorage.setItem('onze_seen','1');
+  link.addEventListener('click', function (e) {
+    e.preventDefault();
+    var href = link.getAttribute('href');
 
-  // (2) skip: tap anywhere to fill instantly; hint appears a couple seconds in
-  addEventListener('click', ()=>{ skip=true; if(skipHint) skipHint.classList.remove('show'); }, {once:true});
-  setTimeout(()=>{ if(!skip && skipHint) skipHint.classList.add('show'); }, 2700);
-
-  // (1) caret rides along through the loading beat
-  const setLoad = w => loading.innerHTML = w + '<span class="caret"></span>';
-
-  (async ()=>{
-    await sleep(2400);                        // let the icon reveal clear
-    loading.classList.add('show'); loadBar.classList.add('show');
-    requestAnimationFrame(()=> loadBar.classList.add('fill'));   // (4) progress line fills over ~7s
-    setLoad('loading'); await sleep(skip?200:3650);
-    setLoad('ready');   await sleep(skip?0:2400);
-    setLoad('go');      await sleep(skip?0:950);
-    loading.classList.remove('show'); loadBar.classList.remove('show');
-    await typeInto(eyebrow, eSeg, .6);        // eyebrow types a touch faster
-    await sleep(240);
-    for(let i=0;i<ps.length;i++){
-      const last = (i===ps.length-1);
-      await typeInto(ps[i], pSeg[i], 1, last); // keep the blinking magenta caret on the final line
-      if(!last) await sleep(skip?0:300);
+    if (reduceMotion) {
+      window.location.href = href;
+      return;
     }
-    if(skipHint) skipHint.classList.remove('show');   // nothing left to skip
-  })();
-})();
-</script>
 
+    // whatever happens below, the click must always end in navigation — the previous version
+    // died silently offline when its CDN library was missing.
+    try {
+      // tells the deck to open under a Pitch-green cover that fades (arrival handoff)
+      sessionStorage.setItem('cxi-from-onze', '1');
+      link.classList.add('pop');
+
+      var panels = document.querySelectorAll('.wipe');
+      panels.forEach(function (p, i) {
+        setTimeout(function () { p.classList.add('sweep'); }, 60 + i * 95);
+      });
+      // navigate ~250ms after the green panel has fully covered the screen
+      setTimeout(function () { window.location.href = href; }, 60 + 4 * 95 + 550 + 250);
+    } catch (err) {
+      window.location.href = href;
+    }
+  });
+</script>
 </body>
 </html>

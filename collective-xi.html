@@ -1,0 +1,2461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collective XI &mdash; Seychelles Football Federation</title>
+<meta name="description" content="A cooperative of small football federations — pooling resources, expertise and opportunity. A proposal prepared for the Seychelles Football Federation.">
+<!-- private pitch to a named official: keep out of search indexes -->
+<meta name="robots" content="noindex,nofollow">
+<!-- og:image/og:url are absolute (deployed at www.onzesite.com, GitHub Pages, 2026-07-13) —
+     link scrapers (WhatsApp/iMessage/Slack) ignore relative image paths. See DEPLOY.md. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.onzesite.com/collective-xi.html">
+<meta property="og:title" content="Collective XI — A proposal for the Seychelles Football Federation">
+<meta property="og:description" content="A cooperative of small football federations — pooling resources, expertise and opportunity.">
+<meta property="og:image" content="https://www.onzesite.com/assets/og/og-collective-xi.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/og/favicon-cxi.png">
+<link rel="apple-touch-icon" href="assets/og/apple-touch-cxi.png">
+<!-- fonts are self-hosted (assets/vendor/fonts) for the same reason every library below is vendored:
+     this deck is routinely opened straight from disk with no network, and the Google Fonts CDN link
+     silently fell back to system fonts in that case — losing all three brand typefaces at once. -->
+<link rel="stylesheet" href="assets/vendor/fonts/fonts.css">
+<link rel="stylesheet" href="theme/collective-xi-tokens.css">
+</head>
+<body>
+<script>
+// JS-detect gate: reveal animations hide content via CSS only when this class is present, so a
+// no-JS/headless/print render shows the full deck instead of permanently-opacity:0 slides. Set as
+// the first thing in <body> (not on DOMContentLoaded) so there's no flash of unhidden content.
+document.documentElement.classList.add('js');
+// arrival handoff: index.html's diagonal wipe lands on Pitch green and sets this flag — the deck
+// then opens under a matching green cover that fades out (.arrival-cover below), so the color
+// carries across the page swap instead of hard-cutting to the dark cold open. Flag is consumed
+// immediately: reloads and direct visits get no cover.
+try {
+  if (sessionStorage.getItem('cxi-from-onze')) {
+    sessionStorage.removeItem('cxi-from-onze');
+    document.documentElement.classList.add('from-onze');
+  }
+} catch (e) {}
+</script>
+<div class="arrival-cover" aria-hidden="true"></div>
+<style>
+:root{
+  --ink:var(--color-ink); --canvas:var(--color-ground);
+  --canvas-soft:color-mix(in srgb, var(--color-ground) 92%, var(--color-ink));
+  --body:color-mix(in srgb, var(--color-ink) 78%, var(--color-ground)); --mute:var(--color-mist);
+  --on-dark:var(--color-ground); --on-dark-mute:color-mix(in srgb, var(--color-ground) 60%, transparent);
+  --hair:color-mix(in srgb, var(--color-mist) 35%, var(--color-ground)); --hair-dark:rgba(255,255,255,.14);
+  --gold:var(--color-floodlight); --gold-ink:color-mix(in srgb, var(--color-floodlight) 55%, var(--color-ink));
+  --dark: color-mix(in srgb, var(--color-navy) 38%, black);
+  /* -- shared motion grammar: every slide's choreography (CSS or GSAP) derives from these four values
+     so twelve different reveal treatments still read as one deck. Initialized to the timings the deck
+     already used (14px rise, .8s settle, 1.1s featured draws, .12s stagger step) — introducing the
+     tokens changes nothing visually, it just gives the per-slide work one dial to pull from.
+     Mirrored in JS as the MO object (see the motion script at the end of <body>). */
+  --mo-rise:14px; --mo-dur:.8s; --mo-dur-slow:1.1s; --mo-step:.12s;
+  --mo-ease:cubic-bezier(.4,0,.2,1); --mo-ease-decel:cubic-bezier(.2,.85,.3,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+/* proximity, never mandatory: slides 2/3 run taller than one viewport at phone widths, and
+   mandatory snap would either trap the scroll short of their lower content or leap past it.
+   Proximity only magnetizes the boundary when a slide edge is already near — free scroll
+   inside tall slides stays untouched. */
+html{scroll-snap-type:y proximity}
+.deck-slide{scroll-snap-align:start}
+body{background:var(--dark);font-family:var(--font-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--gold);color:var(--ink)}
+
+/* arrival handoff from index.html — see the bootstrap script; #1F5C3F matches the wipe's final
+   panel exactly. display:none unless html.from-onze, so direct visits pay nothing. */
+.arrival-cover{
+  position:fixed;inset:0;z-index:2000;pointer-events:none;display:none;
+  background:#1F5C3F;
+}
+html.from-onze .arrival-cover{display:block;animation:arrival-fade .6s ease .15s forwards}
+@keyframes arrival-fade{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){
+  html.from-onze .arrival-cover{display:none}
+}
+
+/* ---- deck chrome: progress bar (top) + prev/next controls (bottom-right) ----
+   CLAUDE.md's navigation-UX rule: the Chairman clicks through alone, so affordances must be
+   VISIBLE, not keyboard-only. The buttons speak the .meta-bar chip language (same translucent
+   dark + blur) so they carry their own contrast floor on light and dark slides alike, and they
+   arrive at the same 4.3s beat as the other chrome so the cold open stays clean. */
+.deck-progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:70;background:transparent;pointer-events:none}
+.deck-progress-fill{
+  height:100%;width:calc(var(--deck-progress,0)*100%);
+  background:var(--gold);
+  transition:width .6s var(--mo-ease);
+}
+.deck-nav{
+  position:fixed;right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));
+  z-index:60;display:flex;flex-direction:column;gap:10px;
+  animation:pill-in .6s ease 4.3s both;
+}
+.deck-nav button{
+  width:44px;height:44px;border-radius:50%;padding:0;cursor:pointer;
+  border:1px solid rgba(251,250,246,.18);
+  background:color-mix(in srgb, var(--dark) 68%, transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:rgba(251,250,246,.85);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s ease,opacity .3s ease;
+}
+.deck-nav button:hover{background:color-mix(in srgb, var(--dark) 88%, transparent);color:var(--gold)}
+.deck-nav button:disabled{opacity:.3;cursor:default;color:rgba(251,250,246,.85)}
+.deck-nav svg{width:18px;height:18px;display:block}
+
+/* Fixed on every slide (not just scrolled past once at the top) — was a normal in-flow bar before,
+   which meant it scrolled away after slide0 and the only remaining wayfinding chrome was
+   .deck-header's white logo, which is invisible on this deck's light-canvas slides (white-on-cream).
+   Its own always-dark translucent chip background means it reads correctly regardless of what's
+   scrolled behind it — light slide or dark, the chip provides its own contrast floor either way. */
+/* Both pills fade in at 4.3s — the same delay as the first hero photo's own fade-in (see .hero-slide
+   below), so the nav chrome arrives in step with that photo rather than at its own arbitrary time. */
+@keyframes pill-in{0%{opacity:0;transform:translateY(-6px)}100%{opacity:1;transform:translateY(0)}}
+.meta-bar{
+  position:fixed;top:0;right:0;z-index:60;
+  display:flex;align-items:center;gap:10px;
+  margin:calc(14px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 0 0;
+  height:34px;padding:0 16px;border-radius:17px;
+  background:color-mix(in srgb, var(--dark) 68%, transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:rgba(251,250,246,.85);
+  font:700 10.5px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
+  font-variant-numeric:tabular-nums;
+  animation:pill-in .6s ease 4.3s both;
+}
+@media (max-width:560px){
+  .meta-bar{padding:0 12px}
+}
+
+/* ============ SLIDE 0 — cold open ============ */
+.slide0{
+  position:relative;min-height:100vh;background:var(--dark);overflow:hidden;
+}
+/* ---- hero: one ambient video loop (Seedance 2.0) replaced the old 3-photo crossfade. It stays
+   hidden behind the neutral ink backdrop while the icon plays center-stage, then fades in at the
+   same 4.3s beat the top pills arrive on (right after the icon clears at 3.2s). The <video> is
+   muted+playsinline+loop and its poster is the video's exact first frame (the same still that
+   seeded the generation) — the fade-in looks identical whether playback has started or not, and
+   no-JS / reduced-motion viewers simply keep the poster: playback only ever starts from JS,
+   gated on the REDUCED check. ---- */
+.hero-slides{
+  position:absolute;inset:0;z-index:0;overflow:hidden;
+}
+.hero-video{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;animation:hero-video-in .9s ease-in-out 4.3s both;
+}
+@keyframes hero-video-in{from{opacity:0}to{opacity:1}}
+.hero-slides::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--dark) 38%, transparent), color-mix(in srgb, var(--dark) 16%, transparent) 42%, color-mix(in srgb, var(--dark) 58%, transparent));
+}
+/* ---- the handwritten line ("Paradise isn't always distraction, It can be training ground.")
+   — Caveat Bold as a one-off annotation device (see fonts.css note), rotated 35° rising, each
+   word nudged off the baseline (--jy/--jr per word) so it reads scrawled, not typeset. Base
+   state is fully visible: the write-on (per-word clip wipes + the loop flourish drawing on)
+   is GSAP-only, so no-JS / reduced-motion / print all get the finished line over the poster.
+   Spec locked with the user across three browser mockups — angle, size, jitter amounts and
+   the loop-swirl path are chosen values, not defaults. ---- */
+.hero-script{
+  position:absolute;left:10%;bottom:24%;z-index:4;pointer-events:none;
+  transform:rotate(-35deg);transform-origin:bottom left;
+  font-family:'Caveat',cursive;font-weight:700;
+  font-size:clamp(29px,6vmin,60px);
+  color:#fff;line-height:1.14;white-space:nowrap;
+  text-shadow:0 2px 18px rgba(6,10,20,.55), 0 0 2px rgba(6,10,20,.3);
+}
+.hs-ln{display:block}
+.hs-word{display:inline-block;transform:translateY(var(--jy,0)) rotate(var(--jr,0deg))}
+.hs-swirl{display:block;margin-top:.08em;width:7.2em;height:auto;overflow:visible}
+.hs-swirl path{
+  fill:none;stroke:#fff;stroke-width:4;stroke-linecap:round;
+  filter:drop-shadow(0 2px 10px rgba(6,10,20,.5));
+}
+@media (max-width:560px){
+  /* phones: pull the anchor right/up and drop the size floor — at 375px the desktop values
+     rotated the first line's start past the left screen edge and clipped "Paradise". */
+  .hero-script{left:17%;bottom:26%;font-size:clamp(21px,6.4vw,26px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .hero-video{animation:none!important;opacity:1!important}
+  .meta-bar,.deck-header,.deck-nav{animation:none!important;opacity:1!important;transform:none!important}
+  .deck-progress-fill{transition:none}
+}
+/* ---- the icon: a 3-color strobe (Pitch → Navy → Floodlight) before settling into the plain
+   white mark, same cascading-color technique as index.html's ONZE icon flash (see that file's
+   .icon-stack) but with this deck's own 3 accents instead of ONZE's 4, one fewer flash accordingly,
+   and — unlike ONZE's instant hard cuts — a short 140ms crossfade at each handoff so the reveal
+   reads as soft/calm rather than a hard pop, matching this deck's own tone. Each colored layer is
+   the white icon PNG used as a CSS mask with a flat background-color behind it — no new image
+   assets needed. The final white layer's settle+hold+fade is timed to land on exactly the same
+   marks as before (fully gone at 3.2s) so the pills/first-photo sync below is untouched. Size
+   (`min(44vw,340px)`) matches slide 8's `.s8-mark`, so the two center-screen reveals read as the
+   same icon at the same size. ---- */
+.icon-stage{
+  position:absolute;top:44%;left:50%;z-index:3;transform:translate(-50%,-50%);
+  width:min(44vw,340px);aspect-ratio:224/220;
+}
+.icon-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0}
+/* Pre-recolored PNGs (cxi-icon-pitch/navy-bright/floodlight.png — generated once from the white
+   icon's own alpha channel, not new artwork) instead of a CSS mask-image over a background-color:
+   mask-image requires a CORS-mode fetch that Chromium refuses for file:// URLs, so it silently
+   failed to load whenever this deck is opened directly from disk rather than through a server —
+   the colored layers rendered as nothing at all, leaving only the plain white settle visible.
+   Plain <img> tags don't have that restriction, so they work identically served or opened directly. */
+.icon-flash{animation:icon-flash 1750ms ease-in-out forwards}
+.icon-flash-1{animation-delay:0ms}
+/* Navy flashed at its normal token value is nearly invisible here — its luminance (0.16) sits too
+   close to --dark's own background luminance (0.06) against which it's flashing, so it read as a
+   near-blank gap in the strobe rather than a visible color. The pitch/navy-bright/floodlight.png
+   set above already bakes in a brightened navy for this reason (not the shared --color-navy token
+   value) so it actually reads as navy mid-strobe. */
+.icon-flash-2{animation-delay:350ms}
+.icon-flash-3{animation-delay:700ms}
+@keyframes icon-flash{
+  0%{opacity:0} 8%{opacity:1} 20%{opacity:1} 28%{opacity:0} 100%{opacity:0}
+}
+.weave-mark{animation:icon-settle-hold-fade 2150ms cubic-bezier(.45,0,.2,1) 1050ms forwards}
+@keyframes icon-settle-hold-fade{
+  0%{opacity:0} 6.5116%{opacity:1} 81.395%{opacity:1} 100%{opacity:0}
+}
+/* matches slide 8's .s8-mark mobile step-down exactly, so the two stay identical below 820px too —
+   without this, .icon-stage's un-stepped 44vw would drift smaller than .s8-mark's capped mobile size. */
+@media (max-width:820px){
+  .icon-stage{width:min(56vw,240px)}
+}
+
+/* ---- deck-wide persistent header: the icon reappears here, top-left, once the center one has faded out ----
+   Same fix as .meta-bar (top-right): the word/icon are styled ivory/gold for a dark background, so they
+   read as invisible on this deck's light-canvas slides. Giving the header its own translucent dark chip
+   background (not relying on the slide behind it) fixes that on any slide, light or dark — matching the
+   meta-bar's chip exactly for a consistent pair of top-corner elements. ---- */
+.deck-header{
+  position:fixed;top:0;left:0;z-index:60;
+  margin:calc(14px + env(safe-area-inset-top)) 0 0 calc(20px + env(safe-area-inset-left));
+  height:34px;padding:0 16px;border-radius:17px;
+  background:color-mix(in srgb, var(--dark) 68%, transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;
+  animation:pill-in .6s ease 4.3s both;
+}
+.deck-header-link{display:flex;align-items:center;border-radius:17px}
+.deck-header-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.deck-header-logo{height:16px;width:auto;display:block}
+
+@media (prefers-reduced-motion:reduce){
+  .icon-flash{animation:none!important;opacity:0!important}
+  .weave-mark{animation:none!important;opacity:1!important}
+}
+
+/* ============ SLIDE 1 — opening hook ============ */
+.slide1{
+  /* brightened for legibility against this deck's dark backgrounds — see .icon-flash-2's comment
+     for the same class of bug (raw pitch measures only 2.41:1 contrast against --dark) */
+  --acc:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground)); --acc-ink:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground));
+  position:relative;overflow:hidden;
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+}
+.slide1-inner{
+  position:relative;z-index:1;
+  padding:80px 40px;max-width:920px;margin:0 auto;width:100%;box-sizing:border-box;
+}
+.slide1-bg{
+  position:absolute;inset:0;z-index:0;
+  background-image:url('assets/imagery/optimized/slide1-hero-bright.webp');
+  background-size:cover;background-position:56% 34%;
+}
+.slide1-bg::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg, color-mix(in srgb, var(--dark) 88%, transparent) 0%, color-mix(in srgb, var(--dark) 72%, transparent) 32%, color-mix(in srgb, var(--dark) 38%, transparent) 62%, color-mix(in srgb, var(--dark) 50%, transparent) 100%);
+  /* --s1-scrim is scrubbed 1 → .85 by GSAP as the slide enters ("the curtain" relaxing) — the
+     slide literally brightens as it takes the stage. Defaults to 1 so no-JS shows full legibility. */
+  opacity:var(--s1-scrim,1);
+}
+/* the dither-wave shader canvas (see the slide-1 shader script before </body>). Hidden until its
+   first frame is actually renderable — .on fades it in over the static photo, so every failure
+   mode (no WebGL, missing data file, context loss) simply leaves the normal background showing.
+   Inside .slide1-bg on purpose: it inherits the same parallax drift/scale GSAP gives the photo,
+   and the ::after scrim (a later box in the tree) keeps painting above it. */
+.slide1-wave{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+  opacity:0;transition:opacity .8s ease;
+}
+.slide1-wave.on{opacity:1}
+/* legibility insurance over the animated dither — the scrim still does most of the work, but the
+   two-level dither churns near-white pixels right up against the headline's left column */
+.slide1 .headline{text-shadow:0 2px 24px rgba(0,0,0,.55)}
+.slide1 .support{text-shadow:0 1px 12px rgba(0,0,0,.5)}
+/* line-wipe masks for the slide-1 headline: each line is its own overflow window, the inner span
+   rises out of it. Masked-line vocabulary is deliberately unique to this slide (see the per-slide
+   choreography script). display:block keeps the <br>-free markup rendering identically to the old
+   hard-broken lines. */
+.s1-ln{display:block;overflow:hidden}
+.s1-ln-in{display:block}
+.eyebrow{
+  font:800 12px/1 var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--acc-ink);
+  margin:0 0 26px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:"";width:22px;height:2px;background:var(--acc);display:inline-block}
+h1.headline,h2.headline{
+  font:800 clamp(34px,6.4vw,72px)/1.05 var(--font-display);letter-spacing:-.02em;color:var(--on-dark);
+  margin:0 0 30px;text-wrap:balance;max-width:26ch;
+}
+p.support{
+  font:400 clamp(17px,2vw,21px)/1.55 var(--font-body);color:var(--on-dark-mute);max-width:46ch;margin:0;
+}
+/* ============ SLIDE 2 — who's behind this (ONZE, magenta) ============
+   Magenta is scoped to just this slide — "ONZE speaks magenta, Collective XI speaks gold." */
+#slide2{
+  --acc:var(--color-navy);--acc-ink:color-mix(in srgb, var(--color-navy) 82%, black);
+  position:relative;background:var(--canvas);color:var(--ink);
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+}
+.s2-inner{
+  position:relative;z-index:1;padding:80px 40px;max-width:1180px;margin:0 auto;width:100%;
+  box-sizing:border-box;display:flex;gap:64px;align-items:center;flex-wrap:wrap;
+}
+.s2-text{flex:1 1 460px;display:flex;flex-direction:column}
+.s2-eyebrow{
+  font:800 12px/1 var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--acc-ink);
+  margin:0 0 26px;display:flex;align-items:center;gap:10px;
+}
+.s2-eyebrow::before{content:"";width:22px;height:2px;background:var(--acc);display:inline-block}
+.s2-headline{
+  font:800 clamp(30px,4.6vw,56px)/1.1 var(--font-display);letter-spacing:-.02em;color:var(--ink);
+  margin:0 0 26px;max-width:14ch;
+}
+.s2-support{
+  font:400 clamp(16px,1.6vw,19px)/1.55 var(--font-body);color:var(--body);max-width:48ch;margin:0 0 28px;
+}
+/* signature-draw divider — replaces the static bar, draws itself once slide2 enters view */
+.s2-divider-wrap{margin:0 0 28px;height:14px}
+svg.s2-sig{display:block}
+.s2-sig-line{
+  fill:none;stroke:var(--acc);stroke-width:3;stroke-linecap:round;
+  stroke-dasharray:240;stroke-dashoffset:240;
+}
+#slide2.in-view .s2-sig-line{animation:s2-sigdraw var(--mo-dur-slow) cubic-bezier(.65,0,.35,1) .15s forwards}
+@keyframes s2-sigdraw{to{stroke-dashoffset:0}}
+
+.s2-body{font:400 15px/1.7 var(--font-body);color:var(--body);max-width:50ch;margin:0 0 40px}
+.s2-stats{display:flex;gap:40px;flex-wrap:wrap;align-items:flex-end}
+.s2-stat-num{font:800 32px/1 var(--font-mono);color:var(--ink);white-space:nowrap}
+.s2-stat-label{
+  font:600 11px/1.4 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-top:8px;
+}
+
+/* kinetic digit reel — Founded stat rolls into place like a mechanical counter */
+.s2-reel{height:34px;overflow:hidden}
+.s2-reel-strip{display:flex;flex-direction:column;transition:transform var(--mo-dur-slow) var(--mo-ease-decel)}
+.s2-reel-strip span{height:34px;line-height:34px;font:800 32px/34px var(--font-mono);color:var(--ink);white-space:nowrap}
+#slide2.in-view .s2-reel-strip{transform:var(--reel-target)}
+
+.s2-stat-bar{position:relative}
+
+.s2-media{
+  flex:1 1 340px;display:flex;flex-direction:column;gap:16px;align-items:center;max-width:420px;margin:0 auto;
+}
+/* cursor-tilt card + scan/verify — same card image, two effects layered */
+.s2-tilt-outer{perspective:800px;width:100%}
+.s2-card-frame{
+  position:relative;width:100%;border-radius:3px;overflow:hidden;
+  transform-style:preserve-3d;transition:transform .12s ease-out;
+}
+.s2-card-img{width:100%;display:block;filter:drop-shadow(0 18px 40px rgba(20,23,15,.25))}
+.s2-sheen{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.5) 46%, rgba(27,42,74,.32) 52%, transparent 68%);
+  background-size:220% 220%;background-position:0% 0%;mix-blend-mode:overlay;opacity:0;transition:opacity .2s ease;
+}
+.s2-card-frame:hover .s2-sheen{opacity:1}
+.s2-scan-line{
+  position:absolute;left:0;right:0;top:0;height:3px;opacity:0;
+  background:linear-gradient(90deg, transparent, var(--acc), transparent);
+}
+#slide2.in-view .s2-scan-line{animation:s2-scan 1.5s cubic-bezier(.6,0,.4,1) .4s forwards}
+@keyframes s2-scan{0%{top:0;opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
+.s2-verify-badge{
+  position:absolute;right:10px;bottom:10px;width:30px;height:30px;border-radius:50%;
+  background:var(--acc);display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(.4);
+}
+#slide2.in-view .s2-verify-badge{animation:s2-badgepop .4s ease 1.9s forwards}
+.s2-verify-badge svg{width:15px;height:15px}
+@keyframes s2-badgepop{to{opacity:1;transform:scale(1)}}
+
+.s2-callout{
+  position:relative;width:100%;box-sizing:border-box;background:var(--canvas-soft);border:1px solid rgba(27,42,74,.25);
+  border-radius:2px;padding:64px 24px 22px;overflow:hidden;
+}
+/* solid accent fill (was a faint transparent+stroke ghost) — the quote mark is the callout's
+   one decorative flourish, so it gets to actually read as Federation Navy. */
+.s2-quote-mark{
+  position:absolute;top:-2px;left:24px;font:800 120px/1 Georgia,serif;color:var(--acc);
+  pointer-events:none;
+}
+.s2-callout-eyebrow{
+  position:relative;font:700 11px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc-ink);margin:0 0 10px;
+}
+.s2-callout-quote{position:relative;font:600 17px/1.4 var(--font-body);color:var(--ink);margin:0 0 10px}
+.s2-callout-body{position:relative;font:400 13px/1.5 var(--font-body);color:var(--body);margin:0}
+@media (max-width:820px){
+  .s2-inner{flex-direction:column;padding:64px 24px}
+  .s2-text,.s2-media{flex:1 1 auto;max-width:100%}
+}
+
+/* ============ SLIDE 3 — the four gaps (Collective XI, gold) ============
+   Light structured cards, scaled up from slide 2's stat-card language. Clean, orderly, and — unlike
+   the cracked-plate version this replaced — never clips a single letter of the copy. */
+#slide3{
+  --acc:var(--color-pitch); --acc-ink:color-mix(in srgb, var(--color-pitch) 82%, black);
+  position:relative;background:var(--canvas);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;
+}
+.s3-head{padding:0 40px;max-width:1180px;margin:0 auto 36px;width:100%;box-sizing:border-box}
+.s3-body{
+  max-width:1180px;margin:0 auto;width:100%;padding:0 40px;box-sizing:border-box;
+  display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;
+}
+.s3-grid{
+  flex:1 1 380px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;
+}
+
+.s3-card{
+  cursor:pointer;position:relative;
+  background:var(--canvas-soft);border:1px solid var(--hair);border-top:3px solid var(--acc);
+  border-radius:2px;padding:30px 28px;
+  opacity:0;transform:translateY(16px);
+  transition:opacity calc(var(--mo-dur)*.75) ease, transform .34s cubic-bezier(.4,0,.2,1), box-shadow .34s ease,
+             background-color .34s ease, border-color .34s ease;
+}
+#slide3.in-view .s3-card{opacity:1;transform:translateY(0)}
+.s3-card:hover,.s3-card.linked{
+  transform:translateY(-2px);box-shadow:0 6px 22px rgba(20,23,15,.13);
+  background:color-mix(in srgb, var(--color-pitch) 18%, var(--color-ground));border-color:color-mix(in srgb, var(--acc) 50%, transparent);
+}
+/* the id-scoped in-view rule otherwise out-specifies .s3-card:hover and pins transform to
+   translateY(0) — the hover lift silently never applied until this rule restored it
+   (found by an automated hover probe during the ambient-motion pass). Scoped to the
+   non-spotlight grid so it can never outrank the focused card's centering transform. */
+#slide3.in-view .s3-grid:not(.spotlight) .s3-card:hover,
+#slide3.in-view .s3-grid:not(.spotlight) .s3-card.linked{transform:translateY(-2px)}
+/* stagger step comes straight off the shared token — slide 3's .12s teeth were the value the
+   whole deck's --mo-step was standardized on. */
+.s3-card:nth-child(1){transition-delay:0s}
+.s3-card:nth-child(2){transition-delay:var(--mo-step)}
+.s3-card:nth-child(3){transition-delay:calc(2*var(--mo-step))}
+.s3-card:nth-child(4){transition-delay:calc(3*var(--mo-step))}
+.s3-num{font:800 13px/1 var(--font-mono);color:var(--acc-ink);letter-spacing:.04em;margin:0 0 14px}
+.s3-label{
+  font:700 10px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--acc-ink);
+  margin:0 0 8px;
+}
+.s3-title-sm{font:800 clamp(17px,1.9vw,20px)/1.25 var(--font-display);color:var(--ink);letter-spacing:-.01em;margin:0 0 8px}
+.s3-sub{font:400 14px/1.6 var(--font-body);color:var(--body);margin:0;max-width:36ch}
+.s3-title{font:800 clamp(30px,4.6vw,56px)/1.1 var(--font-display);letter-spacing:-.02em;color:var(--ink);margin:0 0 12px}
+.s3-hint{font:400 11.5px/1 var(--font-mono);color:var(--mute);margin:10px 0 0}
+.s3-foot{max-width:1180px;margin:28px auto 0;width:100%;padding:0 40px;box-sizing:border-box}
+.s3-dv{height:1px;background:var(--hair);margin:0 0 18px}
+.s3-footer{font:400 13.5px/1.62 var(--font-body);color:var(--body);margin:0;max-width:70ch}
+.s3-foot{transition:opacity .3s}
+.s3-foot.dim{opacity:.3}
+@media (max-width:820px){
+  .s3-foot{padding:0 24px}
+}
+
+/* click-to-expand — same interaction as the Seychelles deck's gap cards: click spotlights one
+   card, dims/blurs the rest, and reveals the detail + "what ONZE builds" proof box. */
+.s3-more{max-height:0;overflow:hidden;opacity:0;transition:max-height .38s cubic-bezier(.4,0,.2,1),opacity .3s,margin .3s}
+.s3-cue{font:700 9px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.12em;color:var(--acc-ink);margin-top:14px;opacity:.7;transition:opacity .2s}
+.s3-card:hover .s3-cue{opacity:1}
+.s3-detail{font:400 12.5px/1.6 var(--font-body);color:var(--body);margin:0 0 12px}
+.s3-proof{font:400 12px/1.55 var(--font-body);color:var(--ink);background:color-mix(in srgb, var(--color-pitch) 10%, transparent);border-left:2px solid var(--acc);padding:10px 12px;border-radius:1px}
+.s3-proof span{display:block;font:700 9px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.12em;color:var(--acc-ink);margin-bottom:6px}
+
+.s3-grid.spotlight{position:relative}
+.s3-grid.spotlight .s3-card{opacity:.32;filter:blur(1.5px) grayscale(.3);transform:scale(.94);pointer-events:none}
+.s3-grid.spotlight .s3-card.focused{
+  opacity:1;filter:none;pointer-events:auto;
+  position:absolute;left:0;right:0;top:50%;
+  transform:translateY(-50%) scale(1);
+  z-index:20;grid-column:1/-1;
+  max-width:640px;margin:0 auto;
+  box-shadow:0 20px 60px rgba(20,23,15,.28);
+  padding:32px 30px;
+}
+.s3-card.focused .s3-more{max-height:400px;opacity:1;margin-top:14px}
+.s3-card.focused .s3-title-sm{font-size:24px}
+@media (max-width:820px){
+  .s3-grid{grid-template-columns:1fr;padding:0 24px}
+  .s3-head{padding:0 24px}
+  .s3-grid.spotlight .s3-card.focused{position:relative;top:auto;left:auto;right:auto;transform:none;max-width:none}
+}
+
+/* ============ SLIDE 4 — the corridor (Collective XI, gold) ============
+   Direct adaptation of the Seychelles deck's own real "corridor" slide (#s5): same real diaspora
+   stats and the same radial arc diagram, re-skinned to this deck's tokens and scroll-triggered
+   (instead of the source's paged nav-triggered animation) to match slides 2/3's pattern. */
+#slide4{
+  --acc:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground)); --acc-ink:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground));
+  position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;
+  /* lifted from the shared --dark (navy 38% black) per user feedback that this slide read too
+     dark. Contrast re-measured at 52%: --acc 5.27:1, muted text 6.8:1 — both still above AA. */
+  background:color-mix(in srgb, var(--color-navy) 52%, black);
+}
+.s4-inner{
+  position:relative;z-index:1;padding:80px 40px;max-width:1440px;margin:0 auto;width:100%;
+  box-sizing:border-box;display:flex;gap:56px;align-items:center;flex-wrap:wrap;
+}
+.s4-text{flex:1 1 380px;max-width:460px;display:flex;flex-direction:column}
+.s4-headline{
+  font:800 clamp(28px,3.8vw,46px)/1.18 var(--font-display);color:var(--on-dark);letter-spacing:-.01em;
+  margin:0 0 20px;max-width:16ch;
+}
+.s4-support{font:400 clamp(15px,1.5vw,17px)/1.55 var(--font-body);color:var(--on-dark-mute);max-width:44ch;margin:0 0 24px}
+.s4-callout{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.16);border-radius:2px;
+  padding:20px 22px;margin:0 0 14px;
+}
+.s4-callout-eyebrow{font:700 10px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--acc);margin:0 0 10px}
+.s4-callout-title{font:700 16px/1.3 var(--font-display);color:var(--on-dark);margin:0 0 8px}
+.s4-callout-body{font:400 13px/1.55 var(--font-body);color:var(--on-dark-mute);margin:0}
+.s4-sources{font:400 10.5px/1.5 var(--font-mono);color:rgba(251,250,246,.4);margin:0}
+.s4-media{position:relative;flex:1.6 1 560px;min-width:0;display:flex;flex-direction:column;gap:12px}
+/* static AI-illustrated dot-map (Nano Banana 2), not video — after two rounds of a rotating-globe
+   video either rendering wrong geography or needing an unremovable rendered highlight line, a still
+   illustration proved far more controllable. Deliberately subtle/low-opacity and contained within
+   .s4-media's own bounds (no bleed into .s4-text) — it's ambient texture behind the arc diagram, not
+   a competing focal point; the real data (the gold arcs) should be the only thing reading as bright. */
+.s4-globe-bg{position:absolute;inset:0;z-index:0}
+.s4-globe-bg img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 45%;
+  opacity:.17;
+}
+.s4-globe-scrim{
+  position:absolute;inset:0;
+  background:radial-gradient(closest-side, transparent 60%, color-mix(in srgb, var(--dark) 50%, transparent) 100%);
+}
+svg.s4-corridor{position:relative;z-index:1;width:100%;height:auto;display:block}
+.s4-corridor-caption{position:relative;z-index:1;font:400 12px/1.5 var(--font-body);color:var(--on-dark-mute);margin:0}
+@media (min-width:1100px){
+  .s4-media{flex-basis:640px}
+}
+
+.s4-arc{fill:none;stroke:var(--acc);stroke-dasharray:1400;stroke-dashoffset:1400;stroke-linecap:round;opacity:0}
+#slide4.in-view .s4-arc{transition:stroke-dashoffset calc(var(--mo-dur-slow)*1.1) var(--mo-ease),opacity .3s;stroke-dashoffset:0;opacity:.85}
+.s4-dnode{fill:var(--acc);r:0;transition:r .4s cubic-bezier(.34,1.56,.64,1)}
+#slide4.in-view .s4-dnode{r:5}
+.s4-dlabel{
+  fill:var(--on-dark);font:800 18px/1 var(--font-mono);letter-spacing:.04em;opacity:0;transition:opacity .5s;
+}
+#slide4.in-view .s4-dlabel{opacity:1}
+.s4-sey-node{fill:var(--acc)}
+.s4-sey-pulse{fill:none;stroke:var(--acc);stroke-width:2;opacity:0;transform-origin:654px 263px}
+#slide4.in-view .s4-sey-pulse{animation:s4-pulse 2.2s ease-out infinite}
+@keyframes s4-pulse{
+  0%{opacity:.7;transform:scale(1)}
+  100%{opacity:0;transform:scale(2.6)}
+}
+@media (max-width:820px){
+  .s4-inner{padding:64px 24px}
+  .s4-text,.s4-media{flex:1 1 auto;max-width:100%}
+}
+
+/* ============ SLIDE 5 — the proof (Cura&ccedil;ao) ============
+   Full-bleed emotional beat right after the corridor's data (slide 4) — the brief's own headline
+   case study, adapted to speak directly to Seychelles (same real numbers as the Seychelles deck's
+   own #s6 "Cura&ccedil;ao did it" slide, reused per the scope-correction rule to prefer real facts).
+   Runs on the daylight/warm Cura&ccedil;ao photo (d22-curacao-family, fans wrapped in the flag) so the
+   community feeling carries this deck's warmth mechanism here instead of a diagram. */
+#slide5{
+  --acc:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground)); --acc-ink:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground));
+  position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+}
+.s5-bg{
+  position:absolute;inset:0;z-index:0;
+  background-image:url('assets/imagery/optimized/curacao-proof-bright.webp');
+  background-size:cover;background-position:64% 38%;
+}
+.s5-bg::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg, color-mix(in srgb, var(--dark) 90%, transparent) 0%, color-mix(in srgb, var(--dark) 74%, transparent) 34%, color-mix(in srgb, var(--dark) 32%, transparent) 64%, color-mix(in srgb, var(--dark) 48%, transparent) 100%);
+}
+/* reveal is GSAP-owned ("the dossier" timeline in the choreography script) — no hidden base state
+   in CSS, so the slide renders complete without JS and the tweens only hide-then-reveal when they
+   actually run. */
+.s5-inner{
+  position:relative;z-index:1;padding:80px 40px;max-width:920px;margin:0 auto;width:100%;box-sizing:border-box;
+}
+.s5-callout{
+  position:relative;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.16);border-radius:2px;
+  padding:22px 24px;margin:26px 0 16px;max-width:560px;
+}
+/* the "stamped document" border-draw overlay: pathLength=100 normalizes the rect's perimeter so
+   one dasharray number drives the draw at any rendered box size; non-scaling-stroke keeps the
+   line 1.5px however the 100x100 viewBox stretches. */
+.s5-callout-draw{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.s5-callout-draw rect{
+  fill:none;stroke:var(--acc);stroke-width:1.5;vector-effect:non-scaling-stroke;
+  stroke-dasharray:100;stroke-dashoffset:100;
+}
+.s5-callout-eyebrow{font:700 10px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--acc);margin:0 0 10px}
+.s5-callout-title{font:700 17px/1.35 var(--font-display);color:var(--on-dark);margin:0 0 10px}
+.s5-callout-body{font:400 14px/1.6 var(--font-body);color:var(--on-dark-mute);margin:0}
+.s5-sources{font:400 10.5px/1.5 var(--font-mono);color:rgba(251,250,246,.4);margin:0}
+@media (max-width:820px){
+  .s5-inner{padding:64px 24px}
+  .s5-bg{background-position:70% 38%}
+}
+
+/* ============ SLIDE 6 — funding capture (FIFA Forward) ============
+   Direct adaptation of the Seychelles deck's own real "#s7" slide — same real inflow numbers, same
+   chart, re-skinned to this deck's tokens. Light canvas (alternates back after slide 4's dark diagram
+   and slide 5's dark-toned photo) and the callout puts a number on the exact gap slide 3's card 2
+   ("FIFA Forward") already named, instead of re-explaining what Collective XI builds. */
+#slide6{
+  --acc:var(--color-navy); --acc-ink:color-mix(in srgb, var(--color-navy) 82%, black);
+  position:relative;background:var(--canvas);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;
+}
+/* reveal is GSAP-owned ("the ledger" — copy wipes in from the left, matching the direction the
+   bars grow; the chart build itself is the slide's loud beat). No hidden base state in CSS. */
+.s6-inner{
+  position:relative;z-index:1;padding:80px 40px;max-width:1180px;margin:0 auto;width:100%;
+  box-sizing:border-box;display:flex;gap:56px;align-items:center;flex-wrap:wrap;
+}
+.s6-text{flex:1 1 380px;max-width:460px;display:flex;flex-direction:column}
+.s6-eyebrow{
+  font:800 12px/1 var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--acc-ink);
+  margin:0 0 26px;display:flex;align-items:center;gap:10px;
+}
+.s6-eyebrow::before{content:"";width:22px;height:2px;background:var(--acc);display:inline-block}
+.s6-headline{
+  font:800 clamp(28px,3.8vw,42px)/1.16 var(--font-display);letter-spacing:-.01em;color:var(--ink);
+  margin:0 0 20px;max-width:16ch;
+}
+.s6-support{font:400 clamp(15px,1.5vw,17px)/1.55 var(--font-body);color:var(--body);max-width:44ch;margin:0 0 24px}
+.s6-callout{
+  background:rgba(232,178,74,.08);border:1px solid rgba(232,178,74,.3);border-radius:2px;
+  padding:20px 22px;margin:0 0 14px;
+}
+.s6-callout-eyebrow{font:700 10px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--gold-ink);margin:0 0 10px}
+.s6-callout-title{font:700 16px/1.3 var(--font-display);color:var(--ink);margin:0 0 8px}
+.s6-callout-body{font:400 13px/1.55 var(--font-body);color:var(--body);margin:0}
+.s6-sources{font:400 10.5px/1.5 var(--font-mono);color:rgba(20,23,15,.4);margin:0}
+.s6-media{flex:1.3 1 460px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.cw{position:relative;width:100%}
+.cw canvas{max-height:260px}
+.s6-chart-caption{font:400 12px/1.5 var(--font-body);color:var(--body);margin:0}
+@media (max-width:820px){
+  .s6-inner{padding:64px 24px}
+  .s6-text,.s6-media{flex:1 1 auto;max-width:100%}
+  .cw canvas{max-height:210px}
+}
+
+/* ============ SLIDE 7 — the pooling ceiling ============
+   Direct adaptation of the Seychelles deck's own real "#s8" slide — same real Absa figure ($29K) and
+   the same interactive pooling slider/formula (29000 * n^1.85, a directional network-effect model
+   anchored on that one real floor), re-skinned to this deck's dark/gold tokens (source widget was
+   light-canvas; went dark here to keep this deck's light/dark rhythm — 6 was light, 8's Weave reveal
+   will want its own drama, so 7 breaks up the run). */
+#slide7{
+  --acc:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground)); --acc-ink:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground));
+  position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;
+  /* same deliberate lift as #slide4 — see the contrast note there. */
+  background:color-mix(in srgb, var(--color-navy) 52%, black);
+}
+/* reveal is GSAP-owned ("the market" — quick copy fade, then the pooling bars comb up and the
+   gold readout counts to its $29K floor; the ticker band slides in from the right like the feed
+   it imitates). No hidden base state in CSS. */
+.s7-inner{
+  position:relative;z-index:1;padding:80px 40px;max-width:1180px;margin:0 auto;width:100%;
+  box-sizing:border-box;display:flex;gap:56px;align-items:center;flex-wrap:wrap;
+}
+.s7-text{flex:1 1 380px;max-width:460px;display:flex;flex-direction:column}
+.s7-headline{
+  font:800 clamp(28px,3.8vw,42px)/1.16 var(--font-display);letter-spacing:-.01em;color:var(--on-dark);
+  margin:0 0 20px;max-width:17ch;
+}
+.s7-support{font:400 clamp(15px,1.5vw,17px)/1.55 var(--font-body);color:var(--on-dark-mute);max-width:44ch;margin:0 0 20px}
+.s7-dv{height:1px;background:rgba(255,255,255,.14);width:56px;margin:0 0 16px}
+.s7-body{font:400 13px/1.6 var(--font-body);color:var(--on-dark-mute);margin:0 0 16px}
+.s7-sources{font:400 10.5px/1.5 var(--font-mono);color:rgba(251,250,246,.4);margin:0}
+.s7-media{flex:1.1 1 420px;min-width:0;display:flex;flex-direction:column}
+.s7-pool-widget{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.16);border-radius:2px;
+  padding:22px 22px 18px;
+}
+.s7-pool-readout{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;gap:16px}
+.s7-pool-nations{display:flex;flex-direction:column;line-height:1}
+.s7-pool-n{font:800 clamp(30px,4vw,46px)/1 var(--font-mono);color:var(--on-dark);letter-spacing:-.02em}
+.s7-pool-n-lbl{font:700 10px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.12em;color:var(--on-dark-mute);margin-top:5px}
+.s7-pool-value-wrap{text-align:right}
+.s7-pool-value{font:800 clamp(28px,4vw,44px)/1 var(--font-mono);color:var(--gold);letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.s7-pool-value-lbl{font:600 9.5px/1.3 var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--on-dark-mute);margin-top:6px;max-width:180px;margin-left:auto}
+.s7-pool-bars{display:flex;align-items:flex-end;gap:3px;height:80px;margin-bottom:16px}
+.s7-pool-bar{flex:1;background:rgba(255,255,255,.16);border-radius:1px;transition:height .35s cubic-bezier(.4,0,.2,1),background .3s;min-height:3px}
+.s7-pool-bar.active{background:var(--acc)}
+.s7-pool-bar.floor{background:var(--on-dark)}
+.s7-pool-slider{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:rgba(255,255,255,.16);outline:none;cursor:pointer;margin:4px 0}
+.s7-pool-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--acc);cursor:pointer;border:3px solid var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.s7-pool-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--acc);cursor:pointer;border:3px solid var(--ink)}
+.s7-pool-ticks{display:flex;justify-content:space-between;margin-top:6px}
+.s7-pool-ticks span{font:600 10px/1 var(--font-mono);color:var(--on-dark-mute);font-variant-numeric:tabular-nums}
+.s7-pool-mult{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.16);font:400 12px/1.4 var(--font-mono);color:var(--on-dark-mute)}
+.s7-pool-mult strong{color:var(--acc);font-weight:800;font-size:15px}
+.s7-pool-caption{font:400 11px/1.5 var(--font-mono);color:var(--on-dark);margin-top:12px}
+@media (max-width:820px){
+  .s7-inner{padding:64px 24px}
+  .s7-text,.s7-media{flex:1 1 auto;max-width:100%}
+}
+
+/* ---- slide 7 background flourish: a quiet scrolling data strip, bottom third of the slide ----
+   `top`/`height` are set from JS (see initTicker), not fixed here — a `vh`-based guess was tried first
+   and broke on mobile: #slide7 grows well past 100vh once text/widget stack under 820px, and the exact
+   total height depends on how much text wraps, so no fixed `vh` value reliably lands in "the bottom
+   third" — it ended up overlapping the pooling widget's own readout numbers instead. JS measures
+   `slide7.scrollHeight` after layout (once the slide is in-view, so content is final) and sets pixel
+   `top`/`height` from that real number — correct on any device/content length, one code path, no media
+   query needed for positioning. The values below are just an inert pre-JS fallback. Very low opacity by
+   design (a background texture, not a readable data element) — two motions layer to sell "live": the
+   whole strip scrolls left on an infinite loop (CSS), and every few seconds a few random entries'
+   price/change actually change value and re-render (JS), like a real feed ticking over, not just
+   sliding sideways. */
+.s7-ticker{
+  position:absolute;left:0;right:0;top:64%;height:34%;z-index:0;overflow:hidden;
+  pointer-events:none;opacity:0;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+}
+/* entrance (fade to .16 + slide from the right) is GSAP-owned — the old opacity transition was
+   removed on purpose: a CSS transition fighting GSAP's per-frame inline opacity writes would
+   re-ease every frame. opacity:0 stays as the no-JS state: without JS the track is never built,
+   so the band is empty texture either way. */
+.s7-ticker-track{
+  position:absolute;top:50%;left:0;transform:translateY(-50%);
+  display:flex;white-space:nowrap;width:max-content;
+  animation:s7-ticker-scroll 55s linear infinite;
+}
+@keyframes s7-ticker-scroll{from{transform:translateY(-50%) translateX(0)}to{transform:translateY(-50%) translateX(-50%)}}
+.s7-tick{
+  display:inline-flex;align-items:baseline;gap:10px;padding:0 28px;
+  font:700 clamp(20px,2.6vw,30px)/1 var(--font-mono);
+  letter-spacing:.02em;
+}
+.s7-tick-sym{color:var(--on-dark-mute)}
+.s7-tick-px{color:var(--on-dark)}
+.s7-tick-chg{font-size:.72em}
+.s7-tick.up .s7-tick-px,.s7-tick.up .s7-tick-chg{color:var(--acc)}
+.s7-tick.down .s7-tick-px,.s7-tick.down .s7-tick-chg{color:var(--on-dark-mute)}
+@media (prefers-reduced-motion:reduce){
+  .s7-ticker-track{animation:none}
+}
+@media (max-width:820px){
+  .s7-tick{font-size:18px;padding:0 20px}
+}
+
+/* ============ SLIDE 8 — Collective XI: the name + the deal (Weave-mark reveal) ============
+   Full-bleed centered moment for the brand mark, mirroring slide 0's cold open with the same calm
+   blur-to-sharp reveal (see .icon-stage / icon-appear-hold-fade). Uses the plain white icon mark
+   (assets/brand-cxi/logo/icon/cxi-icon-white.png), matching slide 0's reveal exactly. */
+#slide8{
+  --acc:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground)); --acc-ink:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground));
+  position:relative;background:var(--dark);min-height:100vh;overflow:hidden;text-align:center;
+}
+/* the landmark hold: on desktop the slide runs 135vh with the content sticky-centered, so the
+   viewer scrolls "through" the reveal moment and the bloom is guaranteed its full 1.6s on stage
+   before the next slide can arrive. Done with CSS sticky rather than a ScrollTrigger pin on
+   purpose — a JS pin re-parents the slide into a spacer and fights the root scroll-snap; sticky
+   is native to the scroller, so snap, paging and the scrollspy all keep working untouched.
+   Phones keep a plain 100vh slide (the hold would eat too much thumb-scroll there). */
+.s8-hold{
+  width:100%;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+@media (min-width:821px){
+  #slide8{min-height:135vh}
+  .s8-hold{position:sticky;top:0}
+}
+.s8-inner{
+  position:relative;z-index:1;max-width:640px;padding:80px 40px;
+  display:flex;flex-direction:column;align-items:center;
+}
+/* the bloom is GSAP-owned and REPLAYS on every arrival (a showpiece exception to the deck's
+   fire-once default — see the replay beats in the choreography script). Base state is visible
+   on purpose: no-JS, print and reduced-motion all get the mark with zero overrides, and only
+   running JS ever hides it. The copy sequence below stays CSS/.in-view and fires once. */
+.s8-mark{
+  width:min(44vw,340px);height:auto;margin:0 0 44px;
+}
+/* the copy sequence holds until the mark's bloom has had its stage (--s8-hold ≈ the bloom's
+   front-loaded 1.2s), then steps in on a slightly wider .15s tooth than the deck's .12s
+   --mo-step — deliberate extra air for the landmark moment, expressed against the token so a
+   deck-wide retime still moves this slide with it. */
+.s8-eyebrow{
+  --s8-hold:calc(var(--mo-dur-slow) + .1s);
+  justify-content:center;opacity:0;transform:translateY(10px);
+  transition:opacity .7s ease var(--s8-hold),transform .7s ease var(--s8-hold);
+}
+#slide8.in-view .s8-eyebrow{opacity:1;transform:translateY(0)}
+.s8-headline{
+  --s8-hold:calc(var(--mo-dur-slow) + .25s);
+  font:800 clamp(38px,6vw,64px)/1.05 var(--font-display);letter-spacing:-.02em;color:var(--on-dark);
+  margin:0 0 22px;
+  opacity:0;transform:translateY(14px);transition:opacity var(--mo-dur) ease var(--s8-hold),transform var(--mo-dur) ease var(--s8-hold);
+}
+#slide8.in-view .s8-headline{opacity:1;transform:translateY(0)}
+.s8-support{
+  --s8-hold:calc(var(--mo-dur-slow) + .4s);
+  font:400 clamp(16px,1.8vw,19px)/1.55 var(--font-body);color:var(--on-dark-mute);max-width:46ch;margin:0 0 28px;
+  opacity:0;transform:translateY(14px);transition:opacity var(--mo-dur) ease var(--s8-hold),transform var(--mo-dur) ease var(--s8-hold);
+}
+#slide8.in-view .s8-support{opacity:1;transform:translateY(0)}
+/* upgraded from a bare top-bordered footnote to the deck's quiet panel language (the
+   .s7-pool-widget pattern) — the polder-model line is the slide's grace note and earns a box.
+   Same reveal slot (the 1.65s beat) and the same no-JS/print overrides keep applying since the
+   class stayed on the wrapper. */
+.s8-caption{
+  --s8-hold:calc(var(--mo-dur-slow) + .55s);
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.18);border-radius:2px;
+  padding:18px 24px;max-width:52ch;
+  opacity:0;transform:translateY(10px);transition:opacity var(--mo-dur) ease var(--s8-hold),transform var(--mo-dur) ease var(--s8-hold);
+}
+#slide8.in-view .s8-caption{opacity:1;transform:translateY(0)}
+.s8-caption-eyebrow{
+  font:700 10px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.12em;color:var(--acc);
+  margin:0 0 8px;
+}
+.s8-caption-body{font:400 13px/1.6 var(--font-body);color:rgba(251,250,246,.6);margin:0}
+@media (max-width:820px){
+  .s8-inner{padding:64px 24px}
+  .s8-mark{width:min(56vw,240px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .s8-mark,.s8-eyebrow,.s8-headline,.s8-support,.s8-caption{
+    animation:none!important;transition:none!important;opacity:1!important;
+    transform:none!important;filter:none!important;
+  }
+}
+
+/* ============ SLIDE 9 — the fan/commercial platform (the women's game) ============
+   Direct adaptation of the Seychelles deck's own real "#s11" slide — same real market figures
+   ($3bn women's elite sport market by 2026, 75% of women's clubs without a kit sponsor, the same
+   Chart.js bars) and the same daylight photo treatment, re-skinned to this deck's tokens. Light canvas
+   (alternates back after 7 dark + 8 dark-centered). Photo swapped from the Seychelles deck's own
+   `sey-imgs/s11-girls.jpg` to this project's own daylight library `d11-girls-session.png` — same
+   subject/content (a women's training session), already vetted against the imagery house guardrails,
+   no need to source or generate a new asset. This is the outline's "fan/commercial platform" beat —
+   skipped the outline's separate "Seychelles as flagship case study" beat first (see build-notes:
+   its content either already lives in slide 8, or is held for the closing slide), so this is the
+   next new beat, not a renumbering artifact. */
+#slide9{
+  --acc:var(--color-pitch); --acc-ink:color-mix(in srgb, var(--color-pitch) 82%, black);
+  position:relative;background:var(--canvas);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;
+}
+/* reveal is GSAP-owned ("the mirror" — copy enters from the right, meeting the horizontal bars
+   building left-to-right; the training photo pulls focus from a 6px blur, used on no other
+   slide). No hidden base state in CSS. */
+.s9-inner{
+  position:relative;z-index:1;padding:80px 40px;max-width:1180px;margin:0 auto;width:100%;
+  box-sizing:border-box;display:flex;gap:56px;align-items:center;flex-wrap:wrap;
+}
+.s9-text{flex:1.15 1 420px;max-width:520px;display:flex;flex-direction:column}
+.s9-headline{
+  font:800 clamp(28px,3.8vw,42px)/1.16 var(--font-display);letter-spacing:-.01em;color:var(--ink);
+  margin:0 0 18px;max-width:15ch;
+}
+.s9-support{font:400 clamp(15px,1.5vw,17px)/1.55 var(--font-body);color:var(--body);max-width:44ch;margin:0 0 20px}
+.s9-dv{height:1px;background:var(--hair);width:56px;margin:0 0 20px}
+.s9-chart-wrap{margin:0 0 20px}
+.s9-chart-wrap canvas{max-height:150px}
+.s9-stats{display:flex;gap:36px}
+.s9-stat-n{font:800 32px/1 var(--font-mono);color:var(--gold-ink);letter-spacing:-.02em}
+.s9-stat-l{font:600 11px/1.3 var(--font-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin-top:6px;max-width:15ch}
+.s9-media{flex:.9 1 360px;min-width:0;display:flex;flex-direction:column;gap:14px}
+/* "editorial print" treatment (replaced a radial-fade oval mask the user rightly called ugly):
+   the photo sits inside a matte frame like a printed photograph — hairline border, thin matte,
+   soft shadow — and drifts slowly INSIDE the frame on scrub (the photo is oversized 1.1x so the
+   drift never exposes an edge). */
+.s9-frame{
+  background:var(--canvas-soft);border:1px solid var(--hair);border-radius:2px;
+  padding:8px;box-shadow:0 10px 30px rgba(20,23,15,.12);
+  overflow:hidden;
+}
+.s9-photo{
+  min-height:220px;aspect-ratio:4/3;
+  background-size:cover;background-position:center 32%;
+  transform:scale(1.1);
+  /* --s9-blur is tweened 6px → 0 by the slide-9 timeline (blur-focus pull); defaults sharp so
+     no-JS and reduced-motion render the finished state. */
+  filter:blur(var(--s9-blur,0px));
+}
+.s9-caption{font:400 13px/1.6 var(--font-body);color:var(--body);margin:0}
+@media (max-width:820px){
+  .s9-inner{padding:64px 24px}
+  .s9-text,.s9-media{flex:1 1 auto;max-width:100%}
+  .s9-stats{gap:24px}
+}
+
+/* ============ SLIDE 10 — the first 90 days ============
+   Direct adaptation of the Seychelles deck's own real "#s-90" slide — same real phase plan and closing
+   line, re-skinned to this deck's dark/gold tokens. Dark canvas (alternates back after 9's light —
+   2/3 light, 4 dark, 5 photo, 6 light, 7 dark, 8 dark, 9 light, 10 dark). A concrete, numbered 2x2
+   card grid rather than a diagram/chart — this slide's whole job is to read as a literal, checkable
+   commitment ("here's exactly what happens"), so restraint/plainness is the right register, not another
+   visualization. */
+#slide10{
+  --acc:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground)); --acc-ink:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground));
+  position:relative;background:var(--dark);min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;
+}
+/* reveal is GSAP-owned ("the timeline" — a literal 1px line draws down through the 90-day plan
+   and each phase card ignites with a brief accent border-flash as the line passes it; sequential
+   cause-and-effect, deliberately NOT slide 3's parallel stagger). No hidden base state in CSS. */
+.s10-inner{
+  position:relative;z-index:1;padding:80px 40px;max-width:1000px;margin:0 auto;width:100%;
+  box-sizing:border-box;
+}
+.s10-headline{
+  font:800 clamp(28px,3.8vw,44px)/1.16 var(--font-display);letter-spacing:-.01em;color:var(--on-dark);
+  margin:0 0 32px;max-width:16ch;
+}
+.s10-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+/* the 90-day line: center gutter on the 2x2 desktop grid, out in the left margin when the grid
+   stacks on mobile. scaleY(0) base = invisible until (and unless) the timeline draws it — it's
+   pure decoration, so staying hidden without JS is correct, not a blank-content bug. */
+.s10-line{
+  position:absolute;top:0;bottom:0;left:50%;width:1px;pointer-events:none;
+  background:var(--acc);opacity:.55;
+  transform:scaleY(0);transform-origin:top center;
+}
+.s10-card{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-radius:2px;
+  padding:22px 22px 20px;
+}
+.s10-card-eyebrow{font:700 10px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--acc);margin:0 0 10px}
+.s10-card-title{font:700 17px/1.3 var(--font-display);color:var(--on-dark);margin:0 0 8px}
+.s10-card-body{font:400 13px/1.55 var(--font-body);color:var(--on-dark-mute);margin:0}
+.s10-dv{height:1px;background:rgba(255,255,255,.14);margin:0 0 16px}
+.s10-foot{font:400 13px/1.6 var(--font-body);color:var(--on-dark-mute);max-width:64ch}
+@media (max-width:820px){
+  .s10-inner{padding:64px 24px}
+  .s10-grid{grid-template-columns:1fr}
+  .s10-line{left:-12px}
+}
+
+/* ============ SLIDE 11 — the closing CTA ============
+   Direct adaptation of the Seychelles deck's own real "#s12" slide — same real headline, support facts
+   (World Cup host, 37,000 diaspora), CTA pill, and the corridor-language closer (Papiamentu/Sranantongo/
+   Seselwa) — reused verbatim, not yet used anywhere else in THIS deck (checked first: voice rule is one
+   such phrase per document). Full-bleed photo, bottom-aligned content, breaking the numbered "0N · Title"
+   eyebrow pattern deliberately (like slide 8 did) — this is the deck's outro, not another pitch beat, so
+   it gets the flag-tag treatment instead. Background swapped from the Seychelles deck's own
+   `sey-imgs/s12-island.jpg` to this project's own daylight library `d16-island-aerial.png` — an aerial
+   of an actual beach football pitch cut into the Seychelles coastline granite, arguably a stronger
+   closing image than a generic island shot since it's literally football + place at once.
+   **Folds in the "recruits the next ten" line** that was deliberately held back from the skipped
+   "Seychelles case study" outline beat (see build-notes) — its forward-looking, past-Seychelles framing
+   belongs here, at the close, not earlier in the pitch. */
+#slide11{
+  --acc:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground)); --acc-ink:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground));
+  position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;
+}
+.s11-bg{
+  position:absolute;inset:0;z-index:0;
+  background-image:url('assets/imagery/optimized/island-aerial-bright.webp');
+  background-size:cover;background-position:38% 42%;
+}
+.s11-bg::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(0deg, color-mix(in srgb, var(--dark) 92%, transparent) 0%, color-mix(in srgb, var(--dark) 62%, transparent) 42%, color-mix(in srgb, var(--dark) 18%, transparent) 72%, color-mix(in srgb, var(--dark) 10%, transparent) 100%);
+}
+/* reveal is GSAP-owned ("the descent" timeline in the choreography script) — no hidden base state
+   in CSS; see .s5-inner's note. */
+.s11-inner{
+  position:relative;z-index:1;padding:0 40px 64px;max-width:760px;margin:0 auto;width:100%;box-sizing:border-box;
+}
+.s11-flag{
+  display:inline-flex;align-items:center;gap:8px;
+  font:700 11px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc);
+  margin:0 0 18px;
+}
+.s11-headline{
+  font:800 clamp(34px,5vw,58px)/1.05 var(--font-display);letter-spacing:-.02em;color:var(--on-dark);
+  margin:0 0 18px;max-width:14ch;
+}
+.s11-support{font:400 clamp(15px,1.6vw,18px)/1.55 var(--font-body);color:var(--on-dark-mute);max-width:56ch;margin:0 0 26px}
+.s11-cta-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:22px}
+.s11-pill{
+  display:inline-block;font:700 12px/1 var(--font-display);letter-spacing:.04em;color:var(--ink);
+  background:var(--gold);padding:14px 22px;border-radius:2px;
+  cursor:pointer;text-decoration:none;
+  transition:transform .15s ease,filter .15s ease;
+}
+.s11-pill:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.s11-pill:active{transform:translateY(0) scale(.98)}
+.s11-pill:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.s11-wa{
+  font:600 12px/1 var(--font-mono);letter-spacing:.04em;color:var(--acc);
+  text-decoration:none;border-bottom:1px solid transparent;
+  transition:border-color .15s ease;
+}
+.s11-wa:hover{border-bottom-color:var(--acc)}
+.s11-wa:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.s11-close{font:400 12.5px/1.6 var(--font-body);color:rgba(251,250,246,.55);max-width:60ch;margin:0}
+.s11-close em{font-style:italic;color:rgba(251,250,246,.75)}
+@media (max-width:820px){
+  .s11-inner{padding:0 24px 48px}
+  .s11-bg{background-position:44% 42%}
+}
+
+/* ============ SLIDE 11B (id slide-crest) — the crest ============
+   The SFF crest as a floating glass shield (assets/imagery/optimized/sff-shield-glass.webp — a
+   Nano Banana 2 re-render of the federation's real mark; source PNG in assets/generated/shield/).
+   #212D49 is NOT --color-navy: it is the mean of the render's own baked-in background (sampled
+   over its border region) — matching the pixels is what lets the hard-edged image composite with
+   no feather mask and no visible rectangle. The image is lossless webp for the same reason (q85
+   drifted the ground ~3 RGB units and reintroduced a faint seam). Change ground and asset only
+   together. */
+#slide-crest{
+  --acc:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground));
+  --acc-ink:color-mix(in srgb, var(--color-pitch) 65%, var(--color-ground));
+  position:relative;overflow:hidden;background:#212D49;
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+}
+.scr-inner{position:relative;z-index:1;text-align:center;padding:48px 24px;max-width:920px;margin:0 auto;width:100%;box-sizing:border-box}
+.scr-inner .eyebrow{justify-content:center}
+.scr-stage{width:clamp(200px,40vmin,420px);margin:0 auto;perspective:900px}
+/* the "in orbit" float: slow bob + Y-axis sway, pure CSS (survives GSAP's reduced-motion bail;
+   the blanket rule collapses it and @media print zeroes transforms). GSAP's reveal touches only
+   opacity/filter on .scr-stage — transform stays owned by this keyframe, they'd fight otherwise. */
+.scr-shield{
+  display:block;width:100%;height:auto;
+  animation:scr-orbit 9s ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes scr-orbit{
+  from{transform:translateY(0) rotateY(-8deg)}
+  to  {transform:translateY(-2.2vmin) rotateY(8deg)}
+}
+.scr-headline{
+  font:800 clamp(28px,4.6vw,52px)/1.08 var(--font-display);letter-spacing:-.02em;color:var(--on-dark);
+  margin:26px 0 14px;
+}
+.scr-support{font:400 clamp(15px,1.7vw,19px)/1.55 var(--font-body);color:var(--on-dark-mute);max-width:46ch;margin:0 auto}
+
+/* ============ SLIDE 12 — appendix: sources & figures ============
+   Direct adaptation of the Seychelles deck's own real "#s13" slide (its final slide) — same real
+   sourced facts and the same closing methodology note, reused verbatim per the scope-correction's
+   "prefer real facts" rule (this note applies especially well here — it's literally about sourcing
+   discipline). Light canvas, plain — the deck's final beat is reference material, not another pitch
+   moment, so — like slide 11 — it deliberately skips the numbered "0N · Title" eyebrow convention
+   used for the pitch body (plain "Appendix — Sources & Figures", matching the source deck's own
+   unnumbered eyebrow style exactly). This is the last slide in the 14-slide outline. */
+#slide12{
+  --acc:var(--color-navy); --acc-ink:color-mix(in srgb, var(--color-navy) 82%, black);
+  position:relative;background:var(--canvas);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;
+}
+/* reveal is GSAP-owned ("the exhale" — one slow opacity fade of the whole column, no transform
+   at all: the only slide with zero movement, a deliberate full-stop after the CTA). */
+.s12-inner{
+  position:relative;z-index:1;padding:80px 40px;max-width:1040px;margin:0 auto;width:100%;
+  box-sizing:border-box;
+}
+.s12-headline{
+  font:800 clamp(26px,3.4vw,38px)/1.16 var(--font-display);letter-spacing:-.01em;color:var(--ink);
+  margin:0 0 28px;
+}
+.s12-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 48px;margin-bottom:8px}
+.s12-item{display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--hair)}
+.s12-item:first-child{border-top:none}
+.s12-tag{
+  flex:none;width:56px;font:800 11px/1.3 var(--font-mono);text-transform:uppercase;letter-spacing:.04em;color:var(--acc-ink);
+  padding-top:1px;
+}
+.s12-detail{font:400 12.5px/1.55 var(--font-body);color:var(--body)}
+.s12-dv{height:1px;background:var(--hair);margin:16px 0 18px}
+.s12-note{font:400 11.5px/1.6 var(--font-body);color:var(--mute);max-width:80ch}
+/* the deck's one textual way back to the welcome page — deliberately end-matter (after the
+   slide-13 CTA, never competing with it) and quiet-link vocabulary (mirrors .s11-wa's register,
+   navy for this slide's light canvas). Hidden in print: a link is dead weight on the PDF. */
+.s12-back{margin:14px 0 0}
+.s12-back-link{
+  font:600 12px/1 var(--font-mono);letter-spacing:.04em;color:var(--acc-ink);
+  text-decoration:none;border-bottom:1px solid transparent;
+  transition:border-color .15s ease;
+}
+.s12-back-link:hover{border-bottom-color:var(--acc-ink)}
+.s12-back-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+@media (max-width:820px){
+  .s12-inner{padding:64px 24px}
+  .s12-cols{grid-template-columns:1fr;gap:0}
+  .s12-col+.s12-col .s12-item:first-child{border-top:1px solid var(--hair)}
+}
+
+/* ============ ambient drift — the deck breathes after it settles ============
+   Idle-motion layer (user direction: copy and panels shouldn't sit dead once revealed).
+   One keyframe, tiny amplitudes (2-4px), long desynced periods (7-14s via per-element
+   --amb-dur/--amb-delay) so nothing ever bobs in sync — it reads as air, not animation.
+   Gated behind .amb-on, which each slide only receives AFTER its entrance finishes (GSAP
+   timelines add it in onComplete; the CSS-engine slides get it from a timed follow-up in the
+   reveal registry) — because a CSS animation overrides inline styles, letting it start early
+   would hijack transform mid-entrance. Same reason interactive elements (slide-3 hover cards,
+   the slider, the CTA pill) are deliberately NOT .amb targets, and slide 12 stays still on
+   purpose (it's the deck's full stop). Reduced-motion: the blanket rule below collapses this
+   like every other slide animation. */
+@keyframes amb-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(var(--amb-y,-4px))}}
+.deck-slide.amb-on .amb{
+  animation:amb-drift var(--amb-dur,9s) ease-in-out var(--amb-delay,0s) infinite;
+}
+
+/* ============ hardening: no-JS, print, reduced-motion ============ */
+
+/* no-JS / ancient engines: reveals are enhancements, never visibility gates. The GSAP-owned
+   slides are safe by construction (their markup ships visible; tweens hide-then-show only when
+   they run), but the CSS-engine slides (2/3/4/8) gate on .in-view, which needs a JS observer —
+   so force their final states when the html.js bootstrap never ran. A deliberately TARGETED
+   list, not a blanket `*` override: a blanket would also "reveal" things that are hidden by
+   design (the icon strobe layers, the stacked hero photos, the scan line, the ticker). */
+html:not(.js) .s3-card{opacity:1;transform:none}
+html:not(.js) :is(.s8-mark,.s8-eyebrow,.s8-headline,.s8-support,.s8-caption,.s2-verify-badge){
+  opacity:1;transform:none;filter:none;animation:none;transition:none;
+}
+html:not(.js) .s2-sig-line{stroke-dashoffset:0;animation:none}
+html:not(.js) .s2-reel-strip{transform:var(--reel-target);transition:none}
+html:not(.js) .s4-arc{stroke-dashoffset:0;opacity:.85;transition:none}
+html:not(.js) .s4-dnode{r:5}
+html:not(.js) .s4-dlabel{opacity:1}
+
+/* print: JS ran, but below-fold observers/tweens never fired, so GSAP's inline hidden states
+   (opacity/visibility) are still stamped on unvisited slides — !important is the only way CSS
+   can outrank an inline style, which is exactly what's needed here. Then re-hide the few
+   stacked/decorative layers the broad stroke would wrongly expose. */
+@media print{
+  [id^=slide], [id^=slide] *{
+    opacity:1!important;visibility:visible!important;transform:none!important;
+    filter:none!important;animation:none!important;transition:none!important;
+  }
+  .icon-flash{opacity:0!important}
+  .slide1-wave{display:none!important} /* print gets the static photo, not a canvas snapshot */
+  .s2-scan-line,.s2-sheen{opacity:0!important}
+  .s4-globe-bg img{opacity:.17!important}
+  .s7-ticker{opacity:.19!important}
+  .s10-line{display:none!important}
+  .s5-callout-draw{display:none!important}
+  .s5-callout{border-color:rgba(255,255,255,.16)!important;background:rgba(255,255,255,.04)!important}
+  .deck-nav,.deck-progress{display:none!important}
+  .s12-back{display:none!important} /* a link is dead weight on the PDF leave-behind */
+}
+
+/* reduced-motion blanket: every CSS animation/transition inside any slide collapses to an
+   instant cut (content still appears — observers still add .in-view, the state change is just
+   immediate). This deliberately covers the slides the four older scoped blocks above missed
+   (2/3/4's draws, reels, pulses). The GSAP side needs no rule here: the choreography's
+   matchMedia bails out entirely under reduce, and the base markup is already the final state. */
+@media (prefers-reduced-motion:reduce){
+  [id^=slide],[id^=slide] *{
+    animation-duration:.01ms!important;animation-delay:0ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;transition-delay:0ms!important;
+  }
+  html{scroll-behavior:auto;scroll-snap-type:none}
+}
+
+</style>
+
+<!-- all three libraries vendored locally (not CDN) — the deck must work opened from disk with no
+     network; the old jsDelivr Chart.js tag meant both charts silently rendered nothing offline. -->
+<script src="assets/vendor/chartjs/chart.umd.min.js"></script>
+<script src="assets/vendor/gsap/gsap.min.js"></script>
+<script src="assets/vendor/gsap/ScrollTrigger.min.js"></script>
+
+<div class="deck-progress" aria-hidden="true"><div class="deck-progress-fill" id="deckProgressFill"></div></div>
+
+<div class="meta-bar"><span>Slide <span id="metaSlideNum">1</span> of 14</span></div>
+
+<!-- visible prev/next controls — the deck's viewer navigates alone, so paging must not depend on
+     the viewer knowing that arrow keys work (they do too; see the keydown handler). -->
+<div class="deck-nav">
+  <button type="button" id="deckPrev" aria-label="Previous slide" disabled>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 14.5L12 8l7 6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button type="button" id="deckNext" aria-label="Next slide">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 9.5L12 16l7-6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</div>
+
+<!-- persistent deck-wide header: appears once the center icon has faded, stays fixed through every slide -->
+<div class="deck-header" id="deckHeader">
+  <!-- the logo chip doubles as the quiet way back to the ONZE welcome page (which renders its
+       greeting instantly on return visits — no second sit-through of the typewriter) -->
+  <a class="deck-header-link" href="index.html" aria-label="Back to the ONZE welcome page" title="Back to the ONZE welcome page">
+    <img class="deck-header-logo" src="assets/brand-cxi/logo/horizontal/cxi-horizontal-white.png" alt="Collective XI">
+  </a>
+</div>
+
+<!-- ================= SLIDE 0 ================= -->
+<div class="slide0 deck-slide" id="slide0" role="region" aria-label="Slide 1 of 14 — Welcome">
+  <div class="hero-slides">
+    <video class="hero-video" muted loop playsinline preload="auto"
+           poster="assets/imagery/optimized/cold-open-poster.webp"
+           src="assets/video/cold-open-loop.mp4" aria-hidden="true"></video>
+  </div>
+  <!-- the handwritten annotation: per-word spans because the write-on wipes word by word with
+       a pen cadence; the jitter values keep each word slightly off the imaginary baseline.
+       Copy is user-authored v3, exact — including the comma + capital "It". -->
+  <div class="hero-script">
+    <span class="hs-ln"><span class="hs-word" style="--jy:-.1em;--jr:-2.8deg">Paradise</span> <span class="hs-word" style="--jy:.09em;--jr:2.2deg">isn&rsquo;t</span> <span class="hs-word" style="--jy:-.06em;--jr:-1.4deg">always</span> <span class="hs-word" style="--jy:.11em;--jr:2.8deg">distraction,</span></span>
+    <span class="hs-ln"><span class="hs-word" style="--jy:-.09em;--jr:-2.2deg">It</span> <span class="hs-word" style="--jy:.06em;--jr:1.6deg">can</span> <span class="hs-word" style="--jy:-.12em;--jr:-3.2deg">be</span> <span class="hs-word" style="--jy:.08em;--jr:2.4deg">training</span> <span class="hs-word" style="--jy:-.07em;--jr:-1.8deg">ground.</span></span>
+    <svg class="hs-swirl" viewBox="0 0 360 52" aria-hidden="true">
+      <path pathLength="100" d="M8,32 C80,44 140,30 176,20 C210,11 216,38 184,36 C220,34 290,24 352,12"/>
+    </svg>
+  </div>
+  <div class="icon-stage">
+    <img class="icon-layer icon-flash icon-flash-1" src="assets/brand-cxi/logo/icon/cxi-icon-pitch.png" alt="" aria-hidden="true">
+    <img class="icon-layer icon-flash icon-flash-2" src="assets/brand-cxi/logo/icon/cxi-icon-navy-bright.png" alt="" aria-hidden="true">
+    <img class="icon-layer icon-flash icon-flash-3" src="assets/brand-cxi/logo/icon/cxi-icon-floodlight.png" alt="" aria-hidden="true">
+    <img class="icon-layer weave-mark" src="assets/brand-cxi/logo/icon/cxi-icon-white.png" alt="Collective XI">
+  </div>
+
+</div>
+
+<!-- ================= SLIDE 1 ================= -->
+<div class="slide1 deck-slide" id="slide1" role="region" aria-label="Slide 2 of 14 — The thesis">
+  <!-- the canvas is the dither-wave live background (see the shader script at the end of the
+       body); the CSS background-image on .slide1-bg stays underneath as the permanent static
+       fallback. The ::after scrim paints above both, so legibility never depends on which one
+       is showing. -->
+  <div class="slide1-bg"><canvas class="slide1-wave" aria-hidden="true"></canvas></div>
+  <div class="slide1-inner amb" style="--amb-y:-3px;--amb-dur:12s">
+    <p class="eyebrow">01 &middot; The thesis</p>
+    <h1 class="headline"><span class="s1-ln"><span class="s1-ln-in">Ignored islanders</span></span><span class="s1-ln"><span class="s1-ln-in">don&rsquo;t have to</span></span><span class="s1-ln"><span class="s1-ln-in">play small.</span></span></h1>
+    <p class="support">The passion never lacks. It&rsquo;s structure.</p>
+  </div>
+</div>
+
+<!-- ================= SLIDE 2 — who's behind this ================= -->
+<div class="deck-slide" id="slide2" role="region" aria-label="Slide 3 of 14 — Who is asking: ONZE">
+  <div class="s2-inner">
+    <div class="s2-text">
+      <p class="s2-eyebrow">Who Is Asking</p>
+      <h2 class="s2-headline">Licensed. Transparent. And small on purpose.</h2>
+      <p class="s2-support">ONZE Sports is a boutique talent management firm. Caribbean roots planted in Dutch soil. Founded in 2026 by corporate attorney and FIFA agent Francisco de Miranda.</p>
+      <div class="s2-divider-wrap">
+        <svg class="s2-sig" width="48" height="14" viewBox="0 0 48 14"><path class="s2-sig-line" d="M2,7 L46,7"/></svg>
+      </div>
+      <p class="s2-body">Most agencies sell their size. We sell exposure by paying attention. We curate a small roster of players, families, and football federations as clients. We advise them along the full spectrum of business or career needs. We look at digital tools and factual data for solutions and opportunity. Human relationships remain key and we are with you all the way through.</p>
+      <div class="s2-stats">
+        <div>
+          <div class="s2-reel" style="width:76px">
+            <div class="s2-reel-strip" style="--reel-target:translateY(-68px);transition-delay:0s">
+              <span>0000</span><span>1189</span><span>2026</span>
+            </div>
+          </div>
+          <div class="s2-stat-label">Founded</div>
+        </div>
+        <div>
+          <div class="s2-reel" style="width:90px">
+            <div class="s2-reel-strip" style="--reel-target:translateY(-68px);transition-delay:calc(3*var(--mo-step))">
+              <span>XQKP</span><span>FDIA</span><span>FIFA</span>
+            </div>
+          </div>
+          <div class="s2-stat-label">Licensed agent</div>
+        </div>
+        <div class="s2-stat-bar">
+          <div class="s2-reel" style="width:250px">
+            <div class="s2-reel-strip" style="--reel-target:translateY(-68px);transition-delay:calc(6*var(--mo-step))">
+              <span>XX XXXXX XXX</span><span>NX Stete Bra</span><span>NY State Bar</span>
+            </div>
+          </div>
+          <div class="s2-stat-label">Licensed attorney</div>
+        </div>
+      </div>
+    </div>
+    <div class="s2-media">
+      <div class="s2-tilt-outer">
+        <div class="s2-card-frame" id="s2CardFrame">
+          <img class="s2-card-img" src="assets/fifa-license/web/fifa-card-back.png" alt="FIFA Football Agent licence &mdash; Francisco de Miranda">
+          <div class="s2-sheen" id="s2Sheen"></div>
+          <div class="s2-scan-line"></div>
+          <div class="s2-verify-badge">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 7" stroke="#FBFAF6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="s2-callout amb" style="--amb-y:-4px;--amb-dur:8.5s;--amb-delay:.6s">
+        <span class="s2-quote-mark">&ldquo;</span>
+        <p class="s2-callout-eyebrow">Non-negotiable</p>
+        <p class="s2-callout-quote">&ldquo;The best interest of our client comes first in any deal. No exceptions.&rdquo;</p>
+        <p class="s2-callout-body">House rule since day one. It navigates every negotiation.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SLIDE 3 — the four gaps ================= -->
+<div class="deck-slide" id="slide3" role="region" aria-label="Slide 4 of 14 — The opportunity gap">
+  <div class="s3-head">
+    <p class="eyebrow">02 &middot; The Opportunity Gap</p>
+    <h2 class="s3-title">Four gaps. One vehicle.</h2>
+    <p class="s3-hint">Click any gap to expand it.</p>
+  </div>
+  <div class="s3-body">
+    <div class="s3-grid" id="s3-grid">
+    <div class="s3-card" data-i="0">
+      <p class="s3-num">01</p>
+      <p class="s3-label">Diaspora Scouting</p>
+      <p class="s3-title-sm">37,000 abroad, unmapped</p>
+      <p class="s3-sub">Diaspora talent, unscouted and unconnected.</p>
+      <div class="s3-more">
+        <p class="s3-detail">Today, diaspora players are found by sheer coincidence. Meaning a coach&rsquo;s personal contact, or a chance email. Federations have no shared map of eligible talent abroad, no relationship with the academies developing them, and no structural way in with that network.</p>
+        <p class="s3-proof"><span>What Collective XI builds</span>A live eligibility register and academy partnerships across key diaspora corridors, so the next international is found on purpose and not by luck.</p>
+      </div>
+      <p class="s3-cue">+ Expand</p>
+    </div>
+    <div class="s3-card" data-i="1">
+      <p class="s3-num">02</p>
+      <p class="s3-label">FIFA Forward</p>
+      <p class="s3-title-sm">Capture the full benefit</p>
+      <p class="s3-sub">FIFA development money left on the table.</p>
+      <div class="s3-more">
+        <p class="s3-detail">FIFA forward funding is not granted automatic. It has to be applied for, justified, accounted for with audited reports. Small federations are known to underclaim, not due to ineligibility but because they lack back office capacity to meet conditions and requirements.</p>
+        <p class="s3-proof"><span>What Collective XI builds</span>A shared compliance back office that writes applications, conducts the reporting, and files any acquittals across the entire bloc. Together, we can turn eligibility into a full and repeatable capture.</p>
+      </div>
+      <p class="s3-cue">+ Expand</p>
+    </div>
+    <div class="s3-card" data-i="2">
+      <p class="s3-num">03</p>
+      <p class="s3-label">Commercial Rights</p>
+      <p class="s3-title-sm">From $29K to a premium bloc</p>
+      <p class="s3-sub">No single federation can sell its commercial rights at scale.</p>
+      <div class="s3-more">
+        <p class="s3-detail">A single small federation&rsquo;s broadcasting and sponsorship&rsquo;s rights are too small for any serious buyer to bother with. Buyers want scale and one single contract. Not twenty four small tiny negotiations.</p>
+        <p class="s3-proof"><span>What Collective XI builds</span>One pooled rights vehicle across all Collective XI members. A single premium asset, negotiated for and sold once. At pricing no individual member could command alone.</p>
+      </div>
+      <p class="s3-cue">+ Expand</p>
+    </div>
+    <div class="s3-card" data-i="3">
+      <p class="s3-num">04</p>
+      <p class="s3-label">Voting Rights</p>
+      <p class="s3-title-sm">Lack of leverage</p>
+      <p class="s3-sub">One FIFA vote with no weight in the balance.</p>
+      <div class="s3-more">
+        <p class="s3-detail">On paper, every federation&rsquo;s vote matters just the same. In practice, smaller nations get isolated and foreclosed from what goes on behind the scene. They vote alone, negotiate alone, and get outmaneuvered by blocs that coordinate decisions.</p>
+        <p class="s3-proof"><span>What Collective XI builds</span>A standing outward facing coalition that turns individual votes into coordinated leverage, without requiring members to give up their freedom to choose.</p>
+      </div>
+      <p class="s3-cue">+ Expand</p>
+    </div>
+    </div>
+  </div>
+  <div class="s3-foot" id="s3-foot">
+    <div class="s3-dv"></div>
+    <p class="s3-footer">Seychelles already runs organised women&rsquo;s competitions and entered the FIFA Women&rsquo;s World Ranking in 2022 &mdash; a ready-made platform for the fastest-growing commercial opportunity in the game.</p>
+  </div>
+</div>
+
+<!-- ================= SLIDE 4 — the corridor ================= -->
+<div class="deck-slide" id="slide4" role="region" aria-label="Slide 5 of 14 — The diaspora corridor">
+  <div class="s4-inner">
+    <div class="s4-text amb" style="--amb-y:-2px;--amb-dur:13s">
+      <p class="eyebrow">03 &middot; The Corridor works</p>
+      <h2 class="s4-headline">A true pipeline. But unmanaged. Under threat.</h2>
+      <p class="s4-support">Diaspora players on the Seychelles squad already have homes at European clubs. But what feeds the national team today is by luck, not by design.</p>
+      <div class="s4-callout amb" style="--amb-y:-4px;--amb-dur:8s;--amb-delay:1.1s">
+        <p class="s4-callout-eyebrow">The wrinkle to be solved.</p>
+        <p class="s4-callout-title">Countries&rsquo; dual citizenship restrictions.</p>
+        <p class="s4-callout-body">For example, Seychelles has strict dual nationality rules. This turns putting a national team football jersey on a diaspora prospect into a multi-jurisdictional legal structuring problem. Immigration and sports issues that our Dutch lawyers specialize in.</p>
+      </div>
+      <p class="s4-sources">Sources: FotMob squad data 2026; Seychelles Dept. of Immigration &amp; Civil Status; DiasporaForDevelopment.eu country factsheet.</p>
+    </div>
+    <div class="s4-media">
+      <div class="s4-globe-bg">
+        <img src="assets/imagery/optimized/world-dotmap.webp" alt="" aria-hidden="true">
+        <div class="s4-globe-scrim"></div>
+      </div>
+      <svg class="s4-corridor" viewBox="40 -45 1000 500" preserveAspectRatio="xMidYMid meet">
+        <g>
+          <path class="s4-arc" d="M654,263 Q595,100 520,80" stroke-width="2.7" style="transition-delay:.1s"/>
+          <path class="s4-arc" d="M654,263 Q595,152 519,147" stroke-width="1.4" style="transition-delay:.2s"/>
+          <path class="s4-arc" d="M654,263 Q444,34 233,94" stroke-width="1.7" style="transition-delay:.3s"/>
+          <path class="s4-arc" d="M654,263 Q746,220 826,327" stroke-width="2.4" style="transition-delay:.4s"/>
+          <path class="s4-arc" d="M654,263 Q602,261 551,343" stroke-width="1.9" style="transition-delay:.5s"/>
+        </g>
+        <g>
+          <circle class="s4-dnode" cx="520" cy="80" style="transition-delay:1.2s"/>
+          <circle class="s4-dnode" cx="519" cy="147" style="transition-delay:1.3s"/>
+          <circle class="s4-dnode" cx="233" cy="94" style="transition-delay:1.4s"/>
+          <circle class="s4-dnode" cx="826" cy="327" style="transition-delay:1.5s"/>
+          <circle class="s4-dnode" cx="551" cy="343" style="transition-delay:1.6s"/>
+        </g>
+        <circle class="s4-sey-node" cx="654" cy="263" r="7"/>
+        <circle class="s4-sey-pulse" cx="654" cy="263" r="7"/>
+        <text x="654" y="288" text-anchor="middle" fill="#FBFAF6" font-family="'Big Shoulders',sans-serif" font-weight="800" font-size="20" letter-spacing="0.5">SEYCHELLES</text>
+        <g>
+          <text class="s4-dlabel" x="512" y="72" text-anchor="end" style="transition-delay:1.2s">UNITED KINGDOM &middot; 26%</text>
+          <text class="s4-dlabel" x="511" y="140" text-anchor="end" style="transition-delay:1.3s">FRANCE &middot; 9%</text>
+          <text class="s4-dlabel" x="225" y="86" text-anchor="end" style="transition-delay:1.4s">CANADA &middot; 12%</text>
+          <text class="s4-dlabel" x="834" y="319" text-anchor="start" style="transition-delay:1.5s">AUSTRALIA &middot; 22%</text>
+          <text class="s4-dlabel" x="543" y="335" text-anchor="end" style="transition-delay:1.6s">SOUTH AFRICA &middot; 15%</text>
+        </g>
+      </svg>
+      <p class="s4-corridor-caption">Estimated distribution of the Seychellois diaspora: UK &amp; Australia dominate. Two of the deepest talent systems on earth.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SLIDE 5 — the proof (Curaçao) ================= -->
+<div class="deck-slide" id="slide5" role="region" aria-label="Slide 6 of 14 — The Curaçao proof">
+  <div class="s5-bg"></div>
+  <div class="s5-inner">
+    <p class="eyebrow">04 &middot; The model already in action</p>
+    <h2 class="headline amb" style="--amb-y:-3px;--amb-dur:11s">Cura&ccedil;ao did it<br>at 156,000.<br>You are smaller.</h2>
+    <p class="support">Cura&ccedil;ao rocked the 2026 World Cup with 25 of 26 players born in the Netherlands. The smallest nation ever to qualify. Diaspora, organized properly, beating nations five hundred times its size.</p>
+    <div class="s5-callout">
+      <svg class="s5-callout-draw" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="100" height="100" pathLength="100"/></svg>
+      <p class="s5-callout-eyebrow">This isn&rsquo;t just theory.</p>
+      <p class="s5-callout-title">ONZE&rsquo;s founder stands in the Dutch/Cura&ccedil;ao corridor.</p>
+      <p class="s5-callout-body">Seychelles, at 130,000, is smaller still. With the same structure, you are not an underdog. You are the next proof. The flagbearer for every other small nation in Collective XI.</p>
+    </div>
+    <p class="s5-sources">Sources: FIFA World Cup 2026 qualification (CONCACAF); ONZE agency positioning brief.</p>
+  </div>
+</div>
+
+<!-- ================= SLIDE 6 — funding capture (FIFA Forward) ================= -->
+<div class="deck-slide" id="slide6" role="region" aria-label="Slide 7 of 14 — FIFA Forward funding">
+  <div class="s6-inner">
+    <div class="s6-text amb" style="--amb-y:-2px;--amb-dur:12.5s">
+      <p class="s6-eyebrow">05 &middot; The Money Already On The Table</p>
+      <h2 class="s6-headline">You capture FIFA money well. Together capture more.</h2>
+      <p class="s6-support">Seychelles has already translated FIFA Forward funding into real infrastructure. Pitches, a national stadium, and league operations. Over USD <span id="s6-count">1.7</span>M into league roots alone.</p>
+      <div class="s6-callout amb" style="--amb-y:-4px;--amb-dur:7.5s;--amb-delay:.4s">
+        <p class="s6-callout-eyebrow">Limitations, per FIFA&rsquo;s own rules.</p>
+        <p class="s6-callout-title">Up to $750K a year for projects. $500K more for operations.</p>
+        <p class="s6-callout-body">Federations are not constrained by eligibility. It&rsquo;s compliance and administrative capacity to capture and deploy this money, year after year. Exactly the gap a shared Collective XI back office closes.</p>
+      </div>
+      <p class="s6-sources">Sources: FIFA Forward / COSAFA (inside.fifa.com); SIFF Forward overview; FIFA Annual Report 2022.</p>
+    </div>
+    <div class="s6-media">
+      <div class="cw"><canvas id="c-fifa-forward"></canvas></div>
+      <p class="s6-chart-caption">Known FIFA Forward inflows to Seychelles. Real money, well used &mdash; and a ceiling that pooling can raise.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SLIDE 7 — the pooling ceiling ================= -->
+<div class="deck-slide" id="slide7" role="region" aria-label="Slide 8 of 14 — The commercial ceiling">
+  <div class="s7-ticker" aria-hidden="true">
+    <div class="s7-ticker-track" id="s7-ticker-track"></div>
+  </div>
+  <div class="s7-inner">
+    <div class="s7-text amb" style="--amb-y:-2px;--amb-dur:13.5s">
+      <p class="eyebrow">06 &middot; The Commercial Ceiling</p>
+      <h2 class="s7-headline">Your whole league sold for $29K. The ceiling that pooling breaks.</h2>
+      <p class="s7-support">In 2024, Absa Bank became title sponsor of the Absa Premier League. Roughly SCR 400,000 per year for the naming rights to a nation&rsquo;s top football division.</p>
+      <div class="s7-dv"></div>
+      <p class="s7-body">This is not a criticism. Just proof of the problem. A single small federation&rsquo;s rights are worth pennies alone. Bundled into Collective XI membership, those same rights become a premium asset that global buyers actually pay for. Seychelles is living proof of the ceiling that pooling is designed to break through.</p>
+      <p class="s7-sources">Sources: Wikipedia (SFF); Grokipedia (Seychelles Premier League); SFF/Absa announcement, Sept 2024.</p>
+    </div>
+    <div class="s7-media">
+      <div class="s7-pool-widget amb" style="--amb-y:-4px;--amb-dur:9.5s;--amb-delay:.9s">
+        <div class="s7-pool-readout">
+          <div class="s7-pool-nations"><span id="s7-pool-n">1</span><span class="s7-pool-n-lbl" id="s7-pool-n-lbl">nation</span></div>
+          <div class="s7-pool-value-wrap">
+            <div class="s7-pool-value" id="s7-pool-value">$29K</div>
+            <div class="s7-pool-value-lbl">est. annual commercial rights value</div>
+          </div>
+        </div>
+        <div class="s7-pool-bars" id="s7-pool-bars"></div>
+        <input type="range" class="s7-pool-slider" id="s7-pool-slider" min="1" max="20" value="1" step="1">
+        <div class="s7-pool-ticks"><span>1</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
+        <div class="s7-pool-mult" id="s7-pool-mult">Seychelles alone &rarr; <strong id="s7-pool-mult-x">1&times;</strong> the value</div>
+      </div>
+      <p class="s7-pool-caption">DRAG to see how pooled commercial value scales with each nation joining Collective XI. The $29K Absa deal is the real-world floor; larger figures are directional models for discussion.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SLIDE 8 — Collective XI: the name + the deal (Weave-mark reveal) ================= -->
+<div class="deck-slide" id="slide8" role="region" aria-label="Slide 9 of 14 — Collective XI">
+  <div class="s8-hold">
+  <div class="s8-inner">
+    <img class="s8-mark" src="assets/brand-cxi/logo/icon/cxi-icon-white.png" alt="Collective XI">
+    <p class="eyebrow s8-eyebrow">07 &middot; Collective XI</p>
+    <h2 class="s8-headline amb" style="--amb-y:-3px;--amb-dur:12s">You can fire us. That&rsquo;s the point.</h2>
+    <p class="s8-support">Collective XI. A voluntary cooperative operated by member football nations. Seychelles is the catalyst. Members move the direction. ONZE magnifies.</p>
+    <div class="s8-caption amb" style="--amb-y:-4px;--amb-dur:8s;--amb-delay:1.3s">
+      <p class="s8-caption-eyebrow">The Dutch &ldquo;Polder Model&rdquo;</p>
+      <p class="s8-caption-body">Applied to football: consensus building among equals. Small nations working and winning together.</p>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ================= SLIDE 9 — the fan/commercial platform (the women's game) ================= -->
+<div class="deck-slide" id="slide9" role="region" aria-label="Slide 10 of 14 — The women’s game">
+  <div class="s9-inner">
+    <div class="s9-text amb" style="--amb-y:-2px;--amb-dur:12s">
+      <p class="eyebrow">08 &middot; The Women&rsquo;s Game</p>
+      <h2 class="s9-headline">Catapult into the fastest-growing market.</h2>
+      <p class="s9-support">Seychelles already operates women&rsquo;s leagues and entered the FIFA Women&rsquo;s World Ranking in 2022. The platform exists. Prepare now to ride the commercial wave that&rsquo;s arriving.</p>
+      <div class="s9-dv"></div>
+      <div class="s9-chart-wrap"><canvas id="c9-wom-fed"></canvas></div>
+      <div class="s9-stats">
+        <div><div class="s9-stat-n">$3bn</div><div class="s9-stat-l">Women&rsquo;s elite sport market by 2026</div></div>
+        <div><div class="s9-stat-n">75%</div><div class="s9-stat-l">Women&rsquo;s clubs without a kit sponsor</div></div>
+      </div>
+    </div>
+    <div class="s9-media">
+      <div class="s9-frame amb" style="--amb-y:-4px;--amb-dur:8.8s;--amb-delay:.5s">
+        <div class="s9-photo" style="background-image:url('assets/imagery/optimized/girls-session-bright.webp')"></div>
+      </div>
+      <p class="s9-caption">A supply-side bottleneck, not a demand problem. Collective XI members move into this space together &mdash; and Seychelles already has the league to build on.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SLIDE 10 — the first 90 days ================= -->
+<div class="deck-slide" id="slide10" role="region" aria-label="Slide 11 of 14 — The first 90 days">
+  <div class="s10-inner">
+    <p class="eyebrow">09 &middot; If You Say Yes</p>
+    <h2 class="s10-headline">The first 90 days, in writing.</h2>
+    <div class="s10-grid">
+      <div class="s10-line" aria-hidden="true"></div>
+      <div class="s10-card amb" style="--amb-y:-3px;--amb-dur:7.8s;--amb-delay:.2s">
+        <p class="s10-card-eyebrow">01 &middot; Days 1&ndash;30</p>
+        <p class="s10-card-title">Map the diaspora.</p>
+        <p class="s10-card-body">A named register of every eligible Seychellois player abroad. Starting with the UK, Australia, South Africa, Canada &amp; France.</p>
+      </div>
+      <div class="s10-card amb" style="--amb-y:-3px;--amb-dur:8.6s;--amb-delay:.9s">
+        <p class="s10-card-eyebrow">02 &middot; Days 31&ndash;60</p>
+        <p class="s10-card-title">Eligibility, case by case.</p>
+        <p class="s10-card-body">Nationality and (dual) citizenship status analysis with counsel, player by player. No shortcuts.</p>
+      </div>
+      <div class="s10-card amb" style="--amb-y:-3px;--amb-dur:9.3s;--amb-delay:1.5s">
+        <p class="s10-card-eyebrow">03 &middot; Days 61&ndash;90</p>
+        <p class="s10-card-title">The Forward file.</p>
+        <p class="s10-card-body">Assessment and support to scan FIFA Forward capture toward the $750K + $500K annual ceilings.</p>
+      </div>
+      <div class="s10-card amb" style="--amb-y:-3px;--amb-dur:10.1s;--amb-delay:2.2s">
+        <p class="s10-card-eyebrow">04 &middot; Day 90</p>
+        <p class="s10-card-title">Founding Constitution for Collective XI on the table.</p>
+        <p class="s10-card-body">Charter highlights: member-owned, voluntary.</p>
+      </div>
+    </div>
+    <div class="s10-dv"></div>
+    <p class="s10-foot">Ninety days costs you nothing but communication and meetings. Every deliverable is yours to keep, whether or not you proceed.</p>
+  </div>
+</div>
+
+<!-- ================= SLIDE 11B (id slide-crest) — the crest ================= -->
+<!-- The breath before the ask: the SFF's own crest re-rendered as translucent glass (approved
+     via mockups 2026-07-13), floating alone on a flat ground. Deliberately no CTA and no data —
+     slide 11 owns the ask; this beat only says "your identity, elevated". Copy is user-authored,
+     exact. NOTE: showing the Chairman his own federation's reimagined mark should be cleared
+     with SFF before the deck ships (content-accuracy guardrail: it's their mark, not ours). -->
+<div class="deck-slide" id="slide-crest" role="region" aria-label="Slide 12 of 14 — The crest">
+  <div class="scr-inner">
+    <p class="eyebrow">The Seychelles Football Federation</p>
+    <div class="scr-stage">
+      <img class="scr-shield" src="assets/imagery/optimized/sff-shield-glass.webp"
+           alt="The Seychelles Football Federation crest, re-rendered as a translucent glass shield">
+    </div>
+    <h2 class="scr-headline">The same mission as always.</h2>
+    <p class="scr-support">The vision amplified and geared towards leadership.</p>
+  </div>
+</div>
+
+<!-- ================= SLIDE 11 — the closing CTA ================= -->
+<div class="deck-slide" id="slide11" role="region" aria-label="Slide 13 of 14 — The invitation">
+  <div class="s11-bg"></div>
+  <div class="s11-inner amb" style="--amb-y:-2px;--amb-dur:13s">
+    <p class="s11-flag">&#9873; Seychelles &times; ONZE</p>
+    <h2 class="s11-headline">Be the nation that proves it.</h2>
+    <p class="s11-support">You&rsquo;ve hosted major FIFA events. You have 37,000 of your people in football&rsquo;s heartlands. You have the ambition. Collective XI is your vehicle. Not just a member. The founding father. Proving a model and recruiting the next ten members.</p>
+    <div class="s11-cta-row">
+      <!-- contact details supplied and confirmed by ONZE (accuracy guardrail): the pill mails
+           Francisco directly (subject only — the Chairman writes his own words); the quiet
+           companion link opens WhatsApp. wa.me needs network, so offline-from-disk it fails
+           gracefully in-browser — the email path works everywhere. -->
+      <a class="s11-pill" href="mailto:francisco.e.de.miranda@gmail.com?subject=Collective%20XI%20%E2%80%94%20Seychelles%20%C3%97%20ONZE">Build Collective XI with us</a>
+      <a class="s11-wa" href="https://wa.me/31617574821?text=Regarding%20Collective%20XI" target="_blank" rel="noopener">or message us on WhatsApp</a>
+    </div>
+    <p class="s11-close">African roots and the Indian-Ocean. ONZE: Ours | Di Nos | Fu Wi | Pou Nou.</p>
+  </div>
+</div>
+
+<!-- ================= SLIDE 12 — appendix: sources & figures ================= -->
+<div class="deck-slide" id="slide12" role="region" aria-label="Slide 14 of 14 — Sources and figures">
+  <div class="s12-inner">
+    <p class="eyebrow">Appendix &mdash; Sources &amp; Figures</p>
+    <h2 class="s12-headline">Every number, defensible.</h2>
+    <div class="s12-cols">
+      <div class="s12-col">
+        <div class="s12-item">
+          <p class="s12-tag">Pop.</p>
+          <p class="s12-detail">~130,000 residents; ~37.4% (36,788) live abroad &mdash; Vatican M&amp;R Section; IOM Country Profile 2024; Grokipedia.</p>
+        </div>
+        <div class="s12-item">
+          <p class="s12-tag">Host</p>
+          <p class="s12-detail">Smallest nation ever to host a FIFA tournament; Beach Soccer World Cup, Victoria, 1&ndash;11 May 2025 &mdash; FIFA.com; Wikipedia.</p>
+        </div>
+        <div class="s12-item">
+          <p class="s12-tag">Rank</p>
+          <p class="s12-detail">#204 FIFA ranking; 0 points / 10 matches in 2026 WCQ &mdash; FotMob; FIFARanking.net; Wikipedia.</p>
+        </div>
+        <div class="s12-item">
+          <p class="s12-tag">Squad</p>
+          <p class="s12-detail">Diaspora-based players at European clubs in current squad &mdash; FotMob squad data, 2026.</p>
+        </div>
+      </div>
+      <div class="s12-col">
+        <div class="s12-item">
+          <p class="s12-tag">FIFA$</p>
+          <p class="s12-detail">USD 1.7M league roots; $580K La Retraite; $564K Stad Linit&eacute;; $676K beach-WC turf &mdash; inside.fifa.com.</p>
+        </div>
+        <div class="s12-item">
+          <p class="s12-tag">Forward</p>
+          <p class="s12-detail">Up to $750K/yr projects + $500K/yr operations per MA &mdash; SIFF; FIFA Annual Report 2022.</p>
+        </div>
+        <div class="s12-item">
+          <p class="s12-tag">Absa</p>
+          <p class="s12-detail">~SCR 400,000/yr (~USD 29K) league title sponsorship, 2024 &mdash; Wikipedia; Grokipedia.</p>
+        </div>
+        <div class="s12-item">
+          <p class="s12-tag">Women</p>
+          <p class="s12-detail">Organised women&rsquo;s leagues; entered FIFA Women&rsquo;s Ranking 2022 &mdash; Wikipedia (SFF).</p>
+        </div>
+      </div>
+    </div>
+    <div class="s12-dv"></div>
+    <p class="s12-note">Illustrative pooled-rights figures are directional models for discussion, anchored on the real Absa floor; they are not projections. Diaspora destination split is an estimate synthesised from IOM/Vatican destination rankings. All primary facts are individually sourced above and defensible in the room.</p>
+    <p class="s12-back"><a class="s12-back-link" href="index.html">&#10229; Back to the welcome page</a></p>
+  </div>
+</div>
+
+<script>
+// ---- motion plumbing (GSAP) ----
+// GSAP core + ScrollTrigger drive the per-slide choreography for the slides whose reveals were
+// previously one shared fade-up; the four slides with rich hand-built CSS sequences (2/3/4/8)
+// and the slide-0 cold open keep their CSS engines — one animation system per slide, never two.
+// MO mirrors the --mo-* custom properties in :root: same numbers, one source of truth per language
+// (CSS reads the custom props, JS reads MO), so retiming the deck stays a one-place change per side.
+gsap.registerPlugin(ScrollTrigger);
+var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var MO = { rise:14, dur:.8, durSlow:1.1, step:.12 };
+gsap.defaults({ duration:MO.dur, ease:'power2.out' });
+
+// the center icon's appear/hold/fade is a pure CSS animation (see .icon-stage's icon-appear-hold-fade)
+// — no JS needed. The persistent header (.deck-header) is constant, not animated (no reveal timing).
+
+// hero video: playback starts from JS only, so reduced-motion (and no-JS) viewers keep the
+// poster frame — the poster IS the video's first frame, so the CSS fade-in at 4.3s looks the
+// same either way. play() can reject (autoplay/power-saver policies); the poster is the graceful
+// outcome of that too, hence the swallowed catch.
+(function(){
+  var v = document.querySelector('.hero-video');
+  if(!v || REDUCED) return;
+  var p = v.play();
+  if(p && p.catch) p.catch(function(){});
+})();
+
+// deck-wide: the fixed meta-bar's slide counter tracks whichever slide is most visible right now —
+// a standard scrollspy pattern, one shared observer watching every .deck-slide element rather than
+// reusing each slide's own per-slide IntersectionObserver (those disconnect after their first fire,
+// since they only exist to trigger a slide's one-time reveal animation; this one runs for the whole
+// session, comparing intersectionRatio across all currently-intersecting slides on every scroll tick).
+// Extended into the single source of navigation truth: the same "most visible slide" verdict also
+// drives the top progress bar (stepped per slide, deliberately not raw scroll % — a calm 14-step
+// indicator, not a jittering line) and the prev/next buttons' disabled states, so counter, bar and
+// buttons can never disagree about where the viewer is.
+(function(){
+  var counter = document.getElementById('metaSlideNum');
+  if(!counter) return;
+  // document-order class query, not an id loop: slide-crest broke the slide0..slide12 id
+  // numbering when it was inserted before slide11, and DOM order is the ground truth anyway
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.deck-slide'));
+  if(!slides.length) return;
+  var prevBtn = document.getElementById('deckPrev');
+  var nextBtn = document.getElementById('deckNext');
+  var fill = document.getElementById('deckProgressFill');
+  var current = 0;
+  function setCurrent(idx){
+    current = idx;
+    counter.textContent = idx + 1;
+    if(fill) fill.style.setProperty('--deck-progress', (idx + 1) / slides.length);
+    if(prevBtn) prevBtn.disabled = (idx === 0);
+    if(nextBtn) nextBtn.disabled = (idx === slides.length - 1);
+  }
+  var ratios = new Map();
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      ratios.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0);
+    });
+    var best = null, bestRatio = 0;
+    slides.forEach(function(el){
+      var r = ratios.get(el) || 0;
+      if(r > bestRatio){ bestRatio = r; best = el; }
+    });
+    if(best) setCurrent(slides.indexOf(best));
+  }, {threshold:[0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1]});
+  slides.forEach(function(el){ io.observe(el); });
+  setCurrent(0);
+
+  // ---- paging: buttons + keyboard, sharing one go() ----
+  // Tall slides (2/3 at phone widths) page WITHIN themselves first: jumping straight to the next
+  // slide's top would skip content the viewer never saw. The 40px tolerance means "close enough
+  // to the bottom counts as done" rather than paging a sliver.
+  function go(dir){
+    var behavior = REDUCED ? 'auto' : 'smooth';
+    var vh = window.innerHeight;
+    if(dir > 0){
+      var b = slides[current].getBoundingClientRect().bottom;
+      if(b > vh + 40){ window.scrollBy({top: Math.min(vh * .85, b - vh), behavior: behavior}); return; }
+    } else {
+      var t = slides[current].getBoundingClientRect().top;
+      if(t < -40){ window.scrollBy({top: Math.max(-vh * .85, t), behavior: behavior}); return; }
+    }
+    var target = slides[Math.max(0, Math.min(slides.length - 1, current + dir))];
+    target.scrollIntoView({behavior: behavior, block: 'start'});
+  }
+  if(prevBtn) prevBtn.addEventListener('click', function(){ go(-1); });
+  if(nextBtn) nextBtn.addEventListener('click', function(){ go(1); });
+  document.addEventListener('keydown', function(e){
+    if(e.defaultPrevented) return;
+    // form controls own their keys — slide 7's range slider consumes ArrowUp/Down natively
+    if(e.target.closest('input,select,textarea,[contenteditable]')) return;
+    // Space on a focused button is native activation (click) — bailing avoids a double page
+    if(e.key === ' ' && e.target.closest('button,a')) return;
+    if(e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)){
+      e.preventDefault(); go(1);
+    } else if(e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)){
+      e.preventDefault(); go(-1);
+    } else if(e.key === 'Home'){
+      e.preventDefault(); slides[0].scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block:'start'});
+    } else if(e.key === 'End'){
+      e.preventDefault(); slides[slides.length - 1].scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block:'start'});
+    }
+  });
+})();
+
+// slide 2: FIFA card tilts toward the cursor, with a faint holographic sheen
+(function(){
+  var frame = document.getElementById('s2CardFrame');
+  var sheen = document.getElementById('s2Sheen');
+  if(!frame || !sheen) return;
+  frame.addEventListener('mousemove', function(e){
+    var r = frame.getBoundingClientRect();
+    var px = (e.clientX - r.left) / r.width;
+    var py = (e.clientY - r.top) / r.height;
+    var rx = (0.5 - py) * 10;
+    var ry = (px - 0.5) * 10;
+    frame.style.transform = 'rotateX('+rx+'deg) rotateY('+ry+'deg)';
+    sheen.style.backgroundPosition = (px*100)+'% '+(py*100)+'%';
+  });
+  frame.addEventListener('mouseleave', function(){
+    frame.style.transform = 'rotateX(0) rotateY(0)';
+  });
+})();
+
+// slide 6: the FIFA Forward bar chart — built lazily the first time slide 6 scrolls in
+// (see the reveal registry at the bottom of this script), not at page load, so the 1.1s
+// bar-growth animation plays in front of the viewer instead of having already finished.
+function buildForwardChart(){
+  var TICK='rgba(20,23,15,.6)', GRID='rgba(0,0,0,.06)', BORD='#D9DCD6';
+  new Chart(document.getElementById('c-fifa-forward'), {
+    type:'bar',
+    data:{
+      labels:['League roots|(2 divisions)','Stad Linite|upgrade','La Retraite|pitch','Beach WC|turf','Beach WC|facilities'],
+      datasets:[{
+        label:'USD',
+        data:[1700000,564500,580300,676147,215000],
+        backgroundColor:['#E8B24A','rgba(27,42,74,.55)','rgba(27,42,74,.45)','rgba(27,42,74,.38)','rgba(27,42,74,.28)'],
+        borderRadius:2, borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,
+      // reduced-motion viewers get the finished chart, not a build — Chart.js has no CSS media
+      // hook, so the flag has to come in through the options object
+      animation: REDUCED ? false : {duration:1100,easing:'easeOutQuart'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(c){ return '$'+(c.parsed.y/1000).toFixed(0)+'K FIFA Forward'; }}}
+      },
+      scales:{
+        x:{ticks:{color:TICK,font:{size:9},maxRotation:0,autoSkip:false,callback:function(v){ return this.getLabelForValue(v).split('|'); }},grid:{display:false},border:{color:BORD}},
+        y:{ticks:{color:TICK,callback:function(v){ return '$'+(v/1000000).toFixed(1)+'M'; },font:{size:10}},grid:{color:GRID},border:{color:BORD}}
+      }
+    }
+  });
+}
+
+// slide 9: the women's-game market chart — same lazy-build pattern as slide 6's.
+function buildWomensChart(){
+  var TICK='rgba(20,23,15,.6)', TICK_Y='rgba(20,23,15,.8)', GRID='rgba(0,0,0,.06)', BORD='#D9DCD6';
+  new Chart(document.getElementById('c9-wom-fed'), {
+    type:'bar',
+    data:{
+      labels:['Market 2026 (Deloitte)','Football share','Growth since 2022'],
+      datasets:[{
+        data:[3,1.05,3.4],
+        backgroundColor:['#1F5C3F','rgba(31,92,63,.55)','rgba(31,92,63,.32)'],
+        borderRadius:2, borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,
+      animation: REDUCED ? false : {duration:1100,easing:'easeOutQuart'}, // see buildForwardChart
+      indexAxis:'y',
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(c){ return ['>$3bn','~35% of market','+340%'][c.dataIndex]; }}}
+      },
+      scales:{
+        x:{ticks:{color:TICK,font:{size:10}},grid:{color:GRID},border:{color:BORD}},
+        y:{ticks:{color:TICK_Y,font:{size:11,weight:'600'}},grid:{display:false},border:{display:false}}
+      }
+    }
+  });
+}
+
+// slide 7: pooling slider + background ticker — wired lazily on first scroll-in, like the charts.
+function poolValue(n){
+  // Anchored on the real Absa floor ($29K at n=1). Network-effect curve (super-linear, directional).
+  if(n<=1) return 29000;
+  return Math.round(29000 * Math.pow(n,1.85));
+}
+function fmtUSD(v){
+  if(v>=1e6) return '$'+(v/1e6).toFixed(v>=1e7?0:1)+'M';
+  if(v>=1e3) return '$'+Math.round(v/1e3)+'K';
+  return '$'+v;
+}
+function initPool(){
+  var s = document.getElementById('s7-pool-slider');
+  if(!s) return;
+  var bars = document.getElementById('s7-pool-bars');
+  for(var i=1;i<=20;i++){
+    var b = document.createElement('div');
+    b.className = 's7-pool-bar' + (i===1?' floor':'');
+    bars.appendChild(b);
+  }
+  function render(n){
+    n = parseInt(n);
+    document.getElementById('s7-pool-n').textContent = n;
+    document.getElementById('s7-pool-n-lbl').textContent = (n===1?'nation':'nations');
+    var v = poolValue(n);
+    document.getElementById('s7-pool-value').textContent = fmtUSD(v);
+    var mult = Math.round(v/29000);
+    document.getElementById('s7-pool-mult').innerHTML = (n===1?'Seychelles alone':(n+' nations pooled'))+' &rarr; <strong id="s7-pool-mult-x">'+mult+'&times;</strong> the value';
+    var allBars = bars.children;
+    var maxV = poolValue(20);
+    for(var i=0;i<20;i++){
+      var bv = poolValue(i+1);
+      allBars[i].style.height = (Math.max(3,(bv/maxV)*80))+'px';
+      allBars[i].className = 's7-pool-bar'+((i+1)<=n?' active':'')+((i===0&&n===1)?' floor':'');
+    }
+  }
+  s.addEventListener('input', function(){ render(this.value); });
+  render(s.value);
+}
+// background ticker: a quiet scrolling data texture, not a data element — real ticker symbols mixed
+// with a few quiet nods (SEY/CXI/FWD/ONZE/DIA). Two motions sell "live": the strip scrolls (CSS,
+// see .s7-ticker-track's animation) and prices actually change value every few seconds (here).
+var tickerData = [
+  {s:'BL',p:91.44,c:1.53},{s:'EAJ',p:56.04,c:0.78},{s:'LIY',p:76.25,c:-1.22},
+  {s:'RXS',p:31.15,c:0.72},{s:'CKZ',p:16.97,c:0.55},{s:'PLD',p:63.65,c:-0.07},
+  {s:'KAV',p:46.71,c:1.57},{s:'AO',p:7.53,c:-0.34},{s:'GOOB',p:13.83,c:0.62},
+  {s:'SEY',p:130.00,c:0.37},{s:'CXI',p:29.02,c:2.14},{s:'FWD',p:75.00,c:0.00},
+  {s:'ONZE',p:11.00,c:0.09},{s:'DIA',p:37.40,c:1.85}
+];
+function tickHTML(item, idx){
+  var up = item.c >= 0;
+  var chg = (up?'+':'')+item.c.toFixed(2);
+  return '<span class="s7-tick '+(up?'up':'down')+'" data-i="'+idx+'">'
+    +'<span class="s7-tick-sym">'+item.s+'</span>'
+    +'<span class="s7-tick-px">'+item.p.toFixed(2)+'</span>'
+    +'<span class="s7-tick-chg">'+chg+'</span></span>';
+}
+function initTicker(){
+  var track = document.getElementById('s7-ticker-track');
+  if(!track || track.dataset.built) return;
+  track.dataset.built = '1';
+  var row = tickerData.map(tickHTML).join('');
+  track.innerHTML = row + row; // duplicated once so a -50% translateX loop is seamless
+  // position the band from the slide's real rendered height, not a guessed vh/% — see the CSS
+  // comment above .s7-ticker for why (mobile's stacked text/widget height varies with content).
+  var band = track.parentElement;
+  var slide7 = document.getElementById('slide7');
+  var totalH = slide7.scrollHeight;
+  var bandH = Math.round(totalH * 0.27); // shrinking (not just shifting) the band nudges its
+  // visual center closer to the slide's true bottom edge, since it stays bottom-anchored below —
+  // #slide7's own overflow:hidden means we can't push top past totalH without clipping the text.
+  band.style.top = Math.round(totalH - bandH) + 'px';
+  band.style.height = bandH + 'px';
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  setInterval(function(){
+    for(var k=0;k<3;k++){
+      var i = Math.floor(Math.random()*tickerData.length);
+      var delta = Math.round((Math.random()*2-1)*240)/100;
+      tickerData[i].p = Math.max(1, tickerData[i].p+delta);
+      tickerData[i].c = delta;
+      var up = delta >= 0;
+      var els = track.querySelectorAll('.s7-tick[data-i="'+i+'"]');
+      els.forEach(function(el){
+        el.className = 's7-tick '+(up?'up':'down');
+        el.querySelector('.s7-tick-px').textContent = tickerData[i].p.toFixed(2);
+        el.querySelector('.s7-tick-chg').textContent = (up?'+':'')+delta.toFixed(2);
+      });
+    }
+  }, 2600);
+}
+
+// ---- one-time slide reveals, consolidated ----
+// Each slide used to carry its own copy-pasted IntersectionObserver IIFE (eleven of them,
+// identical except for the element id). One registry-driven observer replaces them all: it adds
+// .in-view once, runs that slide's optional init (charts, pooling widget) at the same moment, then
+// unobserves. Trigger geometry changed deliberately: rootMargin fires when a slide's top crosses
+// 65% up the viewport, instead of the old threshold:.35 — the feel is the same on viewport-sized
+// slides, but it also fires on slides TALLER than ~2.8x the viewport (slides 2/3 at phone widths),
+// where an intersection RATIO of .35 is geometrically unreachable and the old observers never
+// fired at all.
+(function(){
+  var inits = {
+    slide6: buildForwardChart,
+    slide7: function(){ initPool(); initTicker(); },
+    slide9: buildWomensChart
+  };
+  // CSS-engine slides don't have a GSAP onComplete to hand out the ambient layer, so it arrives
+  // on a timer set safely past each entrance sequence's end (s2 badge pops at 2.3s, s4 labels
+  // finish ~2.1s, s8 caption lands ~2.45s). GSAP slides get amb-on from their timelines instead.
+  var ambAfter = { slide2: 2600, slide4: 2400, slide8: 2800 };
+  var slides = document.querySelectorAll('.deck-slide');
+  function revealAll(){
+    slides.forEach(function(el){
+      el.classList.add('in-view');
+      var f = inits[el.id]; if(f) f();
+    });
+  }
+  if(!('IntersectionObserver' in window)){ revealAll(); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting) return;
+      var el = entry.target;
+      el.classList.add('in-view');
+      var f = inits[el.id]; if(f) f();
+      var d = ambAfter[el.id];
+      if(d) setTimeout(function(){ el.classList.add('amb-on'); }, d);
+      io.unobserve(el);
+    });
+  }, {rootMargin:'0px 0px -35% 0px', threshold:0.01});
+  slides.forEach(function(el){ io.observe(el); });
+})();
+
+// ---- per-slide choreography (GSAP) ----
+// Deliberate creative direction: every slide gets its OWN reveal treatment — no two alike — but
+// all of them pull from the same MO grammar (one easing family, one duration scale) so twelve
+// different entrances still read as one deck. gsap.matchMedia covers the two contexts that change
+// what's appropriate: reduced-motion viewers get a static deck (the base markup is fully visible
+// without any tween, so doing nothing IS the accessible fallback), and phones get shorter parallax
+// travel so full-bleed photos don't swim on a small screen.
+(function(){
+  var mm = gsap.matchMedia();
+  // NOTE: gsap.matchMedia only runs the callback when AT LEAST ONE named condition currently
+  // matches — so mobile/desktop must be complementary queries covering every width, or a plain
+  // desktop viewer (no reduced-motion preference, >820px) would match nothing and get NO
+  // choreography at all. That exact bug shipped briefly during this build; don't recreate it
+  // by "simplifying" the desktop condition away.
+  mm.add({
+    reduce: '(prefers-reduced-motion: reduce)',
+    mobile: '(max-width: 820px)',
+    desktop: '(min-width: 820.02px)'
+  }, function(ctx){
+    if(ctx.conditions.reduce) return;
+    var mobile = ctx.conditions.mobile;
+    // hands a slide its ambient-drift layer only once its entrance has fully settled — see the
+    // ambient-drift CSS block for why early activation would hijack transforms mid-entrance
+    function ambOn(id){ return function(){ var el = document.getElementById(id); if(el) el.classList.add('amb-on'); }; }
+
+    // -- showpiece replay beats -- the deck's default is fire-once (replaying an entrance
+    // re-hides copy every time the viewer scrolls back to re-read, which punishes exactly the
+    // behavior we want). A beat earns a replay only if it is separable from the copy, hides no
+    // text, and carries no interactive state — currently three: the slide-5 dossier landing,
+    // the slide-8 mark bloom, the slide-11 CTA landing. Pattern: restart on arrival from either
+    // direction (first arrival waits out that slide's copy sequence; replays start fast), and
+    // re-arm (hide) only when leaving upward so a fresh scroll-down always gets the full beat.
+    function replayBeat(triggerId, tl, firstDelay, rearm, opts){
+      var first = true, wait;
+      function disarm(){
+        if(wait) wait.kill();
+        tl.pause(0);
+        rearm();
+      }
+      function arm(delay){
+        if(wait) wait.kill();
+        wait = gsap.delayedCall(delay, function(){ tl.restart(); });
+      }
+      ScrollTrigger.create({trigger:'#' + triggerId, start:'top 65%',
+        onEnter:function(){ arm(first ? firstDelay : .25); first = false; },
+        onEnterBack:function(){ arm(.25); },
+        // slides re-arm when the viewer leaves UPWARD — except the deck's top slide, which has
+        // no "up" to leave to: it re-arms when left downward instead (rearmOnLeave).
+        onLeaveBack:function(){ if(!(opts && opts.rearmOnLeave)) disarm(); },
+        onLeave:function(){ if(opts && opts.rearmOnLeave) disarm(); }
+      });
+    }
+
+    // -- SLIDE 0 · the handwritten line — writes itself out over the playing video with a pen
+    // cadence (per-word clip wipes, ~55ms per character, breaths after punctuation), then the
+    // loop flourish draws on beneath. First play waits 5.4s from load: icon clears 3.2s, video
+    // fades at 4.3s, pen starts once the scene has breathed. Replays whenever the viewer comes
+    // back up to the top (rearmOnLeave: slide 0 is the deck's top edge, so it re-arms on the
+    // way DOWN instead of up). clip-path insets run negative on top/bottom so Caveat's
+    // ascenders/descenders and the text-shadow never get shaved mid-wipe.
+    gsap.set('.hs-word', {clipPath:'inset(-25% 103% -25% -5%)'});
+    // autoAlpha:0 as well as the dash prime: with stroke-linecap:round, a dash boundary parked
+    // exactly at the path start renders a single round-cap DOT (a visible white speck left of
+    // the center icon) — so the path stays invisible until the instant its draw begins.
+    gsap.set('.hs-swirl path', {strokeDasharray:100, strokeDashoffset:100, autoAlpha:0});
+    var s0script = gsap.timeline({paused:true});
+    (function(){
+      var words = gsap.utils.toArray('.hs-word');
+      var t = 0;
+      words.forEach(function(w){
+        var dur = Math.max(.22, w.textContent.length * .055);
+        s0script.to(w, {clipPath:'inset(-25% -5% -25% -5%)', duration:dur, ease:'power1.inOut'}, t);
+        t += dur + .09;
+        if(/[.,]$/.test(w.textContent)) t += .3;
+      });
+      s0script.set('.hs-swirl path', {autoAlpha:1}, t + .11)
+              .to('.hs-swirl path', {strokeDashoffset:0, duration:.9, ease:'power2.inOut'}, t + .12);
+    })();
+    replayBeat('slide0', s0script, 5.4,
+      function(){
+        gsap.set('.hs-word', {clipPath:'inset(-25% 103% -25% -5%)'});
+        gsap.set('.hs-swirl path', {strokeDashoffset:100, autoAlpha:0});
+      },
+      {rearmOnLeave:true});
+
+    // -- SLIDE 1 · "the curtain" — the deck's first real reveal sets a vocabulary no other slide
+    // reuses: headline lines wipe up out of their own overflow-masked line boxes, the support
+    // settles beneath, and the numbered eyebrow ticks in last (smallest element, final beat —
+    // reversing the usual eyebrow-first order so the thesis itself leads). Behind the copy, the
+    // photo drifts on scrub and the scrim relaxes 15%: the slide brightens as it takes the stage.
+    gsap.set('.s1-ln-in', {yPercent:110});
+    gsap.set('.slide1 .support', {autoAlpha:0, y:MO.rise});
+    gsap.set('.slide1 .eyebrow', {autoAlpha:0, x:-10});
+    gsap.timeline({scrollTrigger:{trigger:'#slide1', start:'top 65%', once:true}, onComplete:ambOn('slide1')})
+      .to('.s1-ln-in', {yPercent:0, duration:MO.durSlow, ease:'power3.out', stagger:MO.step*1.25})
+      .to('.slide1 .support', {autoAlpha:1, y:0}, '-=' + (MO.dur*.55))
+      .to('.slide1 .eyebrow', {autoAlpha:1, x:0, duration:.45}, '-=' + (MO.dur*.35));
+    gsap.fromTo('.slide1-bg',
+      {yPercent: mobile ? -2.5 : -5, scale:1.1},
+      {yPercent: mobile ? 2.5 : 5, scale:1.1, ease:'none',
+       scrollTrigger:{trigger:'#slide1', start:'top bottom', end:'bottom top', scrub:true}});
+    gsap.fromTo('.slide1-bg', {'--s1-scrim':1}, {'--s1-scrim':.85, ease:'none',
+      scrollTrigger:{trigger:'#slide1', start:'top 90%', end:'top 30%', scrub:true}});
+
+    // -- SLIDE 5 · "the dossier lands" — the proof slide's callout is the deliberate FINAL beat
+    // (user direction): after the copy and even the sources have settled, the box drops in from
+    // slightly above with a small tilt and rocks to rest. The wiggle is ONE elastic rotation
+    // settle, not a shake loop — a diminishing oscillation reads as a document landing on a
+    // desk (the slide's stamped-dossier metaphor), where a repeating jitter would read as an
+    // error. The elastic ease is a knowing exception to the deck's no-elastic rule: ±2° of
+    // rotation on a panel, used exactly once in the deck. The old border-draw beat retired in
+    // favor of the landing (the .s5-callout-draw overlay stays in markup but never animates —
+    // its dashoffset base state keeps it invisible). The Curaçao photo still pans laterally on
+    // scrub — the x-axis counterpart to no other slide's move.
+    gsap.set('#slide5 .eyebrow, #slide5 .headline, #slide5 .support', {autoAlpha:0, y:MO.rise});
+    gsap.set('.s5-callout', {autoAlpha:0});
+    gsap.set('.s5-sources', {autoAlpha:0});
+    gsap.timeline({scrollTrigger:{trigger:'#slide5', start:'top 65%', once:true}, onComplete:ambOn('slide5')})
+      .to('#slide5 .eyebrow', {autoAlpha:1, y:0, duration:MO.dur*.7})
+      .to('#slide5 .headline', {autoAlpha:1, y:0}, '-=' + (MO.dur*.45))
+      .to('#slide5 .support', {autoAlpha:1, y:0}, '-=' + (MO.dur*.55))
+      .to('.s5-sources', {autoAlpha:1, duration:.45}, '-=' + (MO.dur*.4));
+    // the landing is deliberately NOT part of the once-only entrance above: it re-arms whenever
+    // the viewer leaves upward and replays on every arrival (user direction — the box must be
+    // seen to land, and a fire-once trigger burned the moment off-screen whenever the browser
+    // restored scroll or the slide was passed quickly). First arrival waits for the copy to
+    // settle so the box still lands LAST; replays skip that hold since the copy is already up.
+    // Amplitude/frequency tuned so the rocking is plainly visible (~±1.8° first swing) but dies
+    // out in about a second — checked by sampling computed rotation per frame. The callout is
+    // excluded from the ambient-drift system on purpose: a CSS transform animation would
+    // override the replayed GSAP transforms and silently eat the landing.
+    var s5land = gsap.timeline({paused:true})
+      .fromTo('.s5-callout',
+        {autoAlpha:0, y:-30, rotation:-3.4, transformOrigin:'12% 0%'},
+        {autoAlpha:1, y:0, duration:.5, ease:'power3.out'})
+      .to('.s5-callout', {rotation:0, duration:1.4, ease:'elastic.out(1.2,0.22)'}, '<+.16');
+    replayBeat('slide5', s5land, 1.9, function(){ gsap.set('.s5-callout', {autoAlpha:0}); });
+    gsap.fromTo('.s5-bg',
+      {xPercent: mobile ? -1.5 : -2.5, scale:1.07},
+      {xPercent: mobile ? 1.5 : 2.5, scale:1.07, ease:'none',
+       scrollTrigger:{trigger:'#slide5', start:'top bottom', end:'bottom top', scrub:true}});
+
+    // -- SLIDE 6 · "the ledger" — the chart build is the slide's loud beat (Chart.js, built
+    // lazily by the reveal registry so its 1.1s bar growth plays in view); the copy wipes in
+    // from the LEFT, the same direction the bars grow, and the sentence's own "1.7" counts up
+    // in sync with the gold 1.7M bar. Count-up appears on no other slide.
+    gsap.set('#slide6 .s6-text > *', {autoAlpha:0, x:-18});
+    gsap.timeline({scrollTrigger:{trigger:'#slide6', start:'top 65%', once:true}, onComplete:ambOn('slide6')})
+      .to('#slide6 .s6-text > *', {autoAlpha:1, x:0, duration:MO.dur*.9, stagger:MO.step*.75});
+    ScrollTrigger.create({trigger:'#slide6', start:'top 65%', once:true, onEnter:function(){
+      var el = document.getElementById('s6-count');
+      if(!el) return;
+      var o = {v:0};
+      gsap.to(o, {v:1.7, duration:1.1, ease:'power3.out',
+        onUpdate:function(){ el.textContent = o.v.toFixed(1); }});
+    }});
+
+    // -- SLIDE 7 · "the market" — the copy takes a deliberately plain, quick fade (the widgets
+    // are the show here): the pooling bars comb up in sequence (.03s teeth), the gold readout
+    // counts to its real $29K floor like an odometer settling, and the ticker band slides in
+    // from the right edge — arriving the way the feed it imitates would. The comb/odometer
+    // tweens are created at fire time (not page load) because the bars only exist after the
+    // reveal registry's initPool() has run; the 62% start (vs the registry's 65% line) keeps
+    // this trigger strictly after that one.
+    gsap.set('#slide7 .s7-text > *', {autoAlpha:0});
+    gsap.set('.s7-ticker', {autoAlpha:0, x:90});
+    gsap.timeline({scrollTrigger:{trigger:'#slide7', start:'top 65%', once:true}, onComplete:ambOn('slide7')})
+      .to('#slide7 .s7-text > *', {autoAlpha:1, duration:.55, stagger:.07})
+      .to('.s7-ticker', {autoAlpha:.19, x:0, duration:1.2}, '-=.2');
+    ScrollTrigger.create({trigger:'#slide7', start:'top 62%', once:true, onEnter:function(){
+      gsap.from('#s7-pool-bars .s7-pool-bar',
+        {scaleY:0, transformOrigin:'50% 100%', duration:.5, stagger:{each:.03, from:'start'}, delay:.15});
+      var el = document.getElementById('s7-pool-value');
+      if(el){
+        var o = {v:0};
+        gsap.to(o, {v:29000, duration:.9, delay:.2,
+          onUpdate:function(){ el.textContent = fmtUSD(Math.round(o.v)); }});
+      }
+    }});
+
+    // -- SLIDE 9 · "the mirror" — the horizontal bars build left-to-right, so the copy enters
+    // from the RIGHT to meet them (the mirror of slide 6's leftward ledger), while the training
+    // photo pulls focus from a 6px blur to sharp. Blur-focus is used on no other slide.
+    gsap.set('#slide9 .s9-text > *', {autoAlpha:0, x:22});
+    gsap.set('#slide9 .s9-media > *', {autoAlpha:0});
+    gsap.timeline({scrollTrigger:{trigger:'#slide9', start:'top 65%', once:true}, onComplete:ambOn('slide9')})
+      .to('#slide9 .s9-text > *', {autoAlpha:1, x:0, duration:MO.dur*.9, stagger:MO.step*.75})
+      .to('#slide9 .s9-media > *', {autoAlpha:1}, '-=.5')
+      .fromTo('.s9-photo', {'--s9-blur':'6px'}, {'--s9-blur':'0px', duration:MO.durSlow}, '<');
+    // the print's photo drifts inside its matte on scrub — oversized in CSS (and here) so the
+    // travel never exposes a frame edge
+    gsap.fromTo('.s9-photo', {yPercent:-4, scale:1.1}, {yPercent:4, scale:1.1, ease:'none',
+      scrollTrigger:{trigger:'#slide9', start:'top bottom', end:'bottom top', scrub:true}});
+
+    // -- SLIDE 2 · additive layer only — the slide's rich CSS engine (signature draw, reels,
+    // scan, badge) stays untouched; GSAP handles just the FIFA card: it floats in from
+    // off-right with a slight tilt and settles exactly where it used to sit, then keeps a slow
+    // idle hover forever after. Both tweens target .s2-tilt-outer (the WRAPPER) on purpose —
+    // #s2CardFrame's inline transform belongs to the cursor-tilt mousemove handler, and two
+    // writers on one element's transform would fight.
+    gsap.set('.s2-tilt-outer', {autoAlpha:0, x:90, y:24, rotation:4});
+    gsap.timeline({scrollTrigger:{trigger:'#slide2', start:'top 65%', once:true},
+      onComplete:function(){
+        gsap.to('.s2-tilt-outer', {y:'-=5', rotation:.4, duration:4.5, ease:'sine.inOut',
+          repeat:-1, yoyo:true});
+      }})
+      .to('.s2-tilt-outer', {autoAlpha:1, x:0, y:0, rotation:0, duration:MO.durSlow, ease:'power3.out', delay:.25});
+
+    // -- SLIDE 4 · ambient layer only — the reveal itself stays the slide's own CSS engine
+    // (arc draw / node pops / ping); this adds one value-add: the low-opacity dot-map texture
+    // drifts on scrub behind the diagram, reading as depth for nearly zero cost. The slide keeps
+    // exactly one animation system for its content — this touches only the background img.
+    gsap.fromTo('.s4-globe-bg img',
+      {yPercent: mobile ? -3 : -6, scale:1.14},
+      {yPercent: mobile ? 3 : 6, scale:1.14, ease:'none',
+       scrollTrigger:{trigger:'#slide4', start:'top bottom', end:'bottom top', scrub:true}});
+
+    // -- SLIDE 8 · the mark bloom — the deck's landmark beat, now a replay beat: the XI mark
+    // re-blooms every time the viewer arrives at the reveal slide (from either direction),
+    // while the copy sequence beneath stays CSS-owned and fires once. First-arrival delay is 0:
+    // the bloom IS the slide's opening beat, and the copy's own --s8-hold transition delays
+    // already wait for it, so the original timing is preserved exactly.
+    gsap.set('.s8-mark', {autoAlpha:0});
+    var s8bloom = gsap.timeline({paused:true})
+      .fromTo('.s8-mark', {autoAlpha:0, filter:'blur(9px)'},
+              {autoAlpha:1, filter:'blur(0px)', duration:1.6, ease:'power2.out'});
+    replayBeat('slide8', s8bloom, 0, function(){ gsap.set('.s8-mark', {autoAlpha:0}); });
+
+    // -- SLIDE 10 · "the timeline" — the 90-day plan gets a literal reading: a 1px line draws
+    // down through the card column and each phase card ignites (rise + ~200ms accent border
+    // flash) as the line passes — sequential cause-and-effect, deliberately not slide 3's
+    // parallel card stagger. The .3s tooth matches the line's pace so ignitions track the tip.
+    // Border flash color is the dark-slide accent (#6C937F — the same brightened-pitch mix as
+    // --acc here; hardcoded because GSAP can't tween an unresolved color-mix() token string).
+    gsap.set('.s10-headline', {autoAlpha:0, y:MO.rise});
+    gsap.set('.s10-card', {autoAlpha:0, y:MO.rise});
+    gsap.set('.s10-dv, .s10-foot', {autoAlpha:0});
+    gsap.timeline({scrollTrigger:{trigger:'#slide10', start:'top 65%', once:true}, onComplete:ambOn('slide10')})
+      .to('.s10-headline', {autoAlpha:1, y:0})
+      .to('.s10-line', {scaleY:1, duration:1.5, ease:'power1.inOut'}, '-=.2')
+      .to('.s10-card', {autoAlpha:1, y:0, duration:MO.dur*.75, stagger:.3}, '<+.15')
+      .to('.s10-card', {borderColor:'rgba(108,147,127,.85)', duration:.18, stagger:.3}, '<')
+      .to('.s10-card', {borderColor:'rgba(255,255,255,.14)', duration:.45, stagger:.3}, '<+.2')
+      .to('.s10-dv, .s10-foot', {autoAlpha:1, duration:.6}, '-=.2');
+
+    // -- SLIDE 11B (slide-crest) · "the emblem" — the shield surfaces from blur the same way
+    // slide 8's mark does (shared vocabulary: an emblem arriving), then the copy rises quiet.
+    // GSAP touches only opacity/filter on .scr-stage — the float transform is owned by the CSS
+    // scr-orbit keyframe on the img inside it (see the CSS note; they'd fight over transform
+    // if both wrote it). Text reveals are standard rise-ins on the inner elements.
+    gsap.set('.scr-stage', {autoAlpha:0, filter:'blur(9px)'});
+    gsap.set('.scr-headline, .scr-support, #slide-crest .eyebrow', {autoAlpha:0, y:MO.rise});
+    gsap.timeline({scrollTrigger:{trigger:'#slide-crest', start:'top 65%', once:true}})
+      .to('.scr-stage', {autoAlpha:1, filter:'blur(0px)', duration:1.4, ease:'power2.out'})
+      .to('#slide-crest .eyebrow', {autoAlpha:1, y:0, duration:.45}, '-=.7')
+      .to('.scr-headline', {autoAlpha:1, y:0, duration:MO.durSlow}, '-=.3')
+      .to('.scr-support', {autoAlpha:1, y:0}, '-=' + (MO.durSlow*.6));
+
+    // -- SLIDE 12 · "the exhale" — one slow opacity fade of the whole appendix, no transform,
+    // no stagger: the only slide with zero movement. After the CTA's landing, the deck ends on
+    // a full stop, not another gesture.
+    gsap.set('.s12-inner', {autoAlpha:0});
+    gsap.to('.s12-inner', {autoAlpha:1, duration:1.4, ease:'power1.inOut',
+      scrollTrigger:{trigger:'#slide12', start:'top 65%', once:true}});
+
+    // -- SLIDE 11 · "the descent" — the only zoom-OUT in the deck: every other photo move
+    // approaches, this one settles, so arriving at the closing aerial reads as touching down.
+    // Copy rises unhurried at the slow duration, then the gold CTA lands last with one expo
+    // settle — the deck's second-loudest beat, all of it spent on the ask.
+    gsap.set('.s11-flag, .s11-headline, .s11-support, .s11-close, .s11-wa', {autoAlpha:0, y:MO.rise});
+    gsap.set('.s11-pill', {autoAlpha:0, scale:1.04});
+    gsap.timeline({scrollTrigger:{trigger:'#slide11', start:'top 65%', once:true}, onComplete:ambOn('slide11')})
+      .to('.s11-flag', {autoAlpha:1, y:0, duration:MO.dur*.7})
+      .to('.s11-headline', {autoAlpha:1, y:0, duration:MO.durSlow}, '-=' + (MO.dur*.4))
+      .to('.s11-support', {autoAlpha:1, y:0, duration:MO.durSlow}, '-=' + (MO.durSlow*.6))
+      .to('.s11-close, .s11-wa', {autoAlpha:1, y:0, duration:MO.dur*.75}, '-=' + (MO.durSlow*.4));
+    // the ask lands every time (replay beat): copy above reveals once, but the gold pill's
+    // expo settle re-plays on each arrival at the closing slide — first arrival waits out the
+    // copy rise so the CTA still lands last.
+    var s11pill = gsap.timeline({paused:true})
+      .to('.s11-pill', {autoAlpha:1, scale:1, duration:.9, ease:'expo.out'})
+      // the pill is a live link with CSS :hover/:active transforms — GSAP's leftover inline
+      // transform would out-cascade them, so hand transform back to the stylesheet on settle
+      .set('.s11-pill', {clearProps:'transform'});
+    replayBeat('slide11', s11pill, 2.1, function(){ gsap.set('.s11-pill', {autoAlpha:0, scale:1.04}); });
+    gsap.fromTo('.s11-bg', {scale: mobile ? 1.05 : 1.08}, {scale:1, ease:'none',
+      scrollTrigger:{trigger:'#slide11', start:'top bottom', end:'top top', scrub:true}});
+  });
+})();
+
+// slide 3: click a gap card to spotlight it and reveal the detail + proof box
+// (same interaction as the Seychelles deck's "Four gaps" slide).
+(function(){
+  var grid = document.getElementById('s3-grid');
+  var foot = document.getElementById('s3-foot');
+  if(!grid) return;
+  var cards = grid.querySelectorAll('.s3-card');
+  function closeAll(){
+    grid.classList.remove('spotlight');
+    if(foot) foot.classList.remove('dim');
+    cards.forEach(function(c){
+      c.classList.remove('focused');
+      var cue = c.querySelector('.s3-cue');
+      if(cue) cue.textContent = '+ Expand';
+    });
+  }
+  function openCard(card){
+    var isFocused = card.classList.contains('focused');
+    closeAll();
+    if(!isFocused){
+      grid.classList.add('spotlight');
+      if(foot) foot.classList.add('dim');
+      card.classList.add('focused');
+      var cue = card.querySelector('.s3-cue');
+      if(cue) cue.textContent = '— Click to close';
+    }
+  }
+  cards.forEach(function(card){
+    card.addEventListener('click', function(e){
+      e.stopPropagation();
+      openCard(card);
+    });
+  });
+  document.getElementById('slide3').addEventListener('click', function(){ closeAll(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAll(); });
+})();
+</script>
+
+<!-- slide 1's live background texture, base64-embedded (211KB): WebGL can't sample file:// images
+     (CORS taint), and opened-from-disk is this deck's primary environment. Regenerate if the photo
+     changes:  $b=[Convert]::ToBase64String([IO.File]::ReadAllBytes('assets/imagery/optimized/slide1-hero-bright.webp')) -->
+<script src="assets/generated/slide1-hero-data.js"></script>
+<script>
+// ============ SLIDE 1 — the dither-wave background ============
+// Vanilla WebGL port of a React-Three-Fiber "RevealWaveImage" effect (mockup-approved 2026-07-13):
+// the hero photo lives as a two-level Bayer-dithered B&W print that slowly undulates; the pointer
+// is a flashlight that reveals the real color photo through the dither and ripples the surface.
+// Ported library-free — the original's React/THREE wrapper is scaffolding around one fragment
+// shader, and this deck's no-framework/no-CDN rule is load-bearing. Layering contract with the
+// static .slide1-bg (see its CSS): the canvas fades in only after the first frame has actually
+// been drawn, so no-WebGL, reduced-motion, print, missing-data-file and context-loss all resolve
+// to the normal photo background with zero special-casing. The render loop only runs while
+// slide 1 is on screen (IntersectionObserver) — a shader loop that spins through all 13 slides
+// would tax phone batteries for nothing. Mobile note: the composition must not DEPEND on the
+// flashlight (it's pointer-driven), and it doesn't — dither + scrim + text is the complete slide;
+// touch-dragging works as the reveal on phones via pointermove.
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var canvas = document.querySelector('.slide1-wave');
+  var slide = document.getElementById('slide1');
+  if (!canvas || !slide || !window.CXI_SLIDE1_TEX) return;
+  var gl = canvas.getContext('webgl', { antialias:false });
+  if (!gl) return;
+
+  var VERT =
+    'attribute vec2 aPos;varying vec2 vUv;' +
+    'void main(){vUv=aPos*0.5+0.5;gl_Position=vec4(aPos,0.0,1.0);}';
+
+  // the fragment shader is the R3F original, verbatim except: uCoverScale/uCoverOffset added to
+  // implement object-fit:cover + the photo's 56%/34% object-position (the original letterboxed
+  // inside a square clip space, which would distort at slide aspect ratios).
+  var FRAG =
+    'precision highp float;' +
+    'uniform sampler2D uTexture;uniform float uTime;uniform vec2 uMouse;' +
+    'uniform float uRevealRadius;uniform float uRevealSoftness;uniform float uPixelSize;' +
+    'uniform float uMouseActive;uniform float uWaveSpeed;uniform float uWaveFrequency;' +
+    'uniform float uWaveAmplitude;uniform float uMouseRadius;' +
+    'uniform vec2 uCoverScale;uniform vec2 uCoverOffset;varying vec2 vUv;' +
+    'float bayer4x4(vec2 pos){' +
+    '  int x=int(mod(pos.x,4.0));int y=int(mod(pos.y,4.0));int index=x+y*4;' +
+    '  float pattern[16];' +
+    '  pattern[0]=0.0;pattern[1]=8.0;pattern[2]=2.0;pattern[3]=10.0;' +
+    '  pattern[4]=12.0;pattern[5]=4.0;pattern[6]=14.0;pattern[7]=6.0;' +
+    '  pattern[8]=3.0;pattern[9]=11.0;pattern[10]=1.0;pattern[11]=9.0;' +
+    '  pattern[12]=15.0;pattern[13]=7.0;pattern[14]=13.0;pattern[15]=5.0;' +
+    '  for(int i=0;i<16;i++){if(i==index)return pattern[i]/16.0;}return 0.0;}' +
+    'void main(){' +
+    '  vec2 uv=vUv;float time=uTime;' +
+    '  float waveStrength=uWaveAmplitude*0.1;' +
+    '  float wave1=sin(uv.y*uWaveFrequency+time*uWaveSpeed)*waveStrength;' +
+    '  float wave2=sin(uv.x*uWaveFrequency*0.7+time*uWaveSpeed*0.8)*waveStrength*0.5;' +
+    '  vec2 distortedUv=uv;distortedUv.x+=wave1;distortedUv.y+=wave2;' +
+    '  if(uMouseActive>0.01){' +
+    '    float dist=distance(uv,uMouse);' +
+    '    float mouseInfluence=smoothstep(uMouseRadius,0.0,dist);' +
+    '    float ripple=sin(dist*uWaveFrequency*5.0-time*uWaveSpeed)*uWaveAmplitude*0.05*mouseInfluence*uMouseActive;' +
+    '    distortedUv+=ripple;}' +
+    '  vec4 color=texture2D(uTexture,distortedUv*uCoverScale+uCoverOffset);' +
+    '  float gray=dot(color.rgb,vec3(0.299,0.587,0.114));' +
+    '  float dither=bayer4x4(floor(gl_FragCoord.xy/uPixelSize));' +
+    '  float adjusted=gray+(dither-0.5)*0.5;' +
+    '  float quantized;' +
+    '  if(adjusted<0.33)quantized=0.0;else if(adjusted<0.66)quantized=0.5;else quantized=1.0;' +
+    '  float revealDist=distance(uv,uMouse);' +
+    '  float innerRadius=uRevealRadius*(1.0-uRevealSoftness);' +
+    '  float revealAmount=(1.0-smoothstep(innerRadius,uRevealRadius,revealDist))*uMouseActive;' +
+    '  gl_FragColor=vec4(mix(vec3(quantized),color.rgb,revealAmount),color.a);}';
+
+  var prog, U = {};
+  try {
+    function compile(type, src){
+      var s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+      return s;
+    }
+    prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  } catch (err) { return; } // static background remains — nothing to clean up
+  gl.useProgram(prog);
+
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  var aPos = gl.getAttribLocation(prog, 'aPos');
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  ['uTexture','uTime','uMouse','uRevealRadius','uRevealSoftness','uPixelSize','uMouseActive',
+   'uWaveSpeed','uWaveFrequency','uWaveAmplitude','uMouseRadius','uCoverScale','uCoverOffset']
+    .forEach(function(n){ U[n] = gl.getUniformLocation(prog, n); });
+
+  // tuning straight from the approved mockup (which used the source component's demo values)
+  gl.uniform1f(U.uWaveSpeed, 0.2);
+  gl.uniform1f(U.uWaveFrequency, 0.7);
+  gl.uniform1f(U.uWaveAmplitude, 0.5);
+  gl.uniform1f(U.uRevealRadius, 0.5);
+  gl.uniform1f(U.uRevealSoftness, 1.0);
+  gl.uniform1f(U.uMouseRadius, 0.4);
+  gl.uniform1f(U.uMouseActive, 0);
+  gl.uniform2f(U.uMouse, -10, -10);
+
+  var dpr = Math.min(window.devicePixelRatio || 1, 2); // cap: retina at full DPR doubles fill cost
+  gl.uniform1f(U.uPixelSize, 2.0 * dpr);               // keeps dither dots the same visual size
+
+  var imgAspect = 1;
+  function updateCover(){
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    var sx = 1, sy = 1, canvasAspect = w / h;
+    if (canvasAspect > imgAspect) { sy = imgAspect / canvasAspect; } else { sx = canvasAspect / imgAspect; }
+    gl.uniform2f(U.uCoverScale, sx, sy);
+    gl.uniform2f(U.uCoverOffset, (1 - sx) * 0.56, (1 - sy) * (1 - 0.34)); // v runs bottom-up
+  }
+
+  var img = new Image();
+  img.onload = function(){
+    imgAspect = img.naturalWidth / img.naturalHeight;
+    var tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.uniform1i(U.uTexture, 0);
+    updateCover();
+    window.addEventListener('resize', updateCover);
+
+    // pointer → flashlight. getBoundingClientRect on purpose (not clientWidth): the parallax
+    // scales/translates .slide1-bg, and the reveal must land under the actual cursor, not where
+    // the untransformed box would be. pointermove covers touch-drag on phones too.
+    var mouseTarget = 0, mouseActive = 0, hasEntered = false;
+    slide.addEventListener('pointerenter', function(){ mouseTarget = 1; });
+    slide.addEventListener('pointerleave', function(){ mouseTarget = 0; });
+    slide.addEventListener('pointermove', function(e){
+      hasEntered = true; mouseTarget = 1;
+      var r = canvas.getBoundingClientRect();
+      gl.uniform2f(U.uMouse, (e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height);
+    });
+
+    var running = false, rafId = 0, t0 = performance.now(), shown = false;
+    function frame(now){
+      if (!running) return;
+      mouseActive += ((hasEntered ? mouseTarget : 0) - mouseActive) * 0.08; // the source's easing
+      gl.uniform1f(U.uMouseActive, mouseActive);
+      gl.uniform1f(U.uTime, (now - t0) / 1000);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (!shown) { shown = true; canvas.classList.add('on'); } // first real frame → crossfade in
+      rafId = requestAnimationFrame(frame);
+    }
+    new IntersectionObserver(function(entries){
+      var visible = entries[0].isIntersecting;
+      if (visible && !running) { running = true; rafId = requestAnimationFrame(frame); }
+      else if (!visible && running) { running = false; cancelAnimationFrame(rafId); }
+    }).observe(slide);
+
+    canvas.addEventListener('webglcontextlost', function(e){
+      e.preventDefault();
+      running = false; cancelAnimationFrame(rafId);
+      canvas.classList.remove('on'); // static photo fades back — no restore attempt, keep it simple
+    });
+  };
+  img.src = window.CXI_SLIDE1_TEX;
+})();
+</script>
+
+</body>
+</html>
