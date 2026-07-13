@@ -71,7 +71,10 @@ html,body{margin:0;padding:0}
    where it covers the viewport, so free scroll inside tall slides survives; only boundaries
    snap. scroll-snap-stop keeps a hard flick from skipping past slides unseen — this is a
    pitch, every slide is supposed to get its moment. */
-html{scroll-snap-type:y mandatory;overscroll-behavior-y:none}
+html{scroll-snap-type:y mandatory;overscroll-behavior-y:none;overflow-x:clip}
+/* overflow-x:clip (not hidden) on the root: Safari ignores overflow-x:hidden on html/body for
+   the purposes of page width, but honors clip — this guarantees no off-screen entrance state
+   (see #slide2's card) can ever widen the layout viewport and shove the fixed pills off-screen. */
 /* overscroll-behavior kills the rubber-band bounce at the very top — combined with the mobile
    address bar still animating during the first few swipes, it made slides 0/1 feel unanchored
    right after load (the bar settling is also why the deck "firms up" after a minute). */
@@ -350,6 +353,12 @@ p.support{
   --acc:var(--color-navy);--acc-ink:color-mix(in srgb, var(--color-navy) 82%, black);
   position:relative;background:var(--canvas);color:var(--ink);
   min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  /* overflow:hidden is LOAD-BEARING (it was the one slide missing it): the FIFA card waits at
+     x:+90px until this slide's reveal, and Safari — unlike Chrome — widens the page for
+     transformed children despite body{overflow-x:hidden}. That 66px of phantom width pushed
+     every right-anchored pill off-screen and made the first slides feel loose/pannable on
+     phones until the card's entrance ran (i.e. until the viewer reached this slide). */
+  overflow:hidden;
 }
 .s2-inner{
   position:relative;z-index:1;padding:80px 40px;max-width:1180px;margin:0 auto;width:100%;
