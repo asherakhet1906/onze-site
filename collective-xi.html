@@ -127,7 +127,7 @@ html.from-onze .arrival-cover{display:block;animation:arrival-fade .6s ease .15s
 /* Both pills fade in at 4.3s — the same delay as the first hero photo's own fade-in (see .hero-slide
    below), so the nav chrome arrives in step with that photo rather than at its own arbitrary time. */
 @keyframes pill-in{0%{opacity:0;transform:translateY(-6px)}100%{opacity:1;transform:translateY(0)}}
-/* chrome idle-fade: after ~2.6s without any interaction the three fixed pills dim to a whisper
+/* chrome idle-fade: after ~2s without any interaction the three fixed pills dim to a whisper
    so they stop sitting on slide content (phones especially); any scroll/touch/key restores them
    instantly. The cycle only starts on the viewer's FIRST interaction — the cold-open entrance
    plays out untouched. Reduced-motion viewers keep chrome permanently visible. */
@@ -2332,7 +2332,7 @@ function initTicker(){
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAll(); });
 })();
 
-// chrome idle-fade (see the pill-in CSS block): dims the fixed pills after 2.6s of stillness,
+// chrome idle-fade (see the pill-in CSS block): dims the fixed pills after 2s of stillness,
 // restores them on any interaction. Deliberately does nothing until the first interaction, so
 // on the cold open the pills finish their 4.3s entrance and stay discoverable until the viewer
 // actually starts moving.
@@ -2342,7 +2342,7 @@ function initTicker(){
   function wake(){
     document.documentElement.classList.remove('chrome-idle');
     clearTimeout(t);
-    t = setTimeout(function(){ document.documentElement.classList.add('chrome-idle'); }, 2600);
+    t = setTimeout(function(){ document.documentElement.classList.add('chrome-idle'); }, 2000);
   }
   ['scroll','wheel','pointerdown','pointermove','keydown','touchstart'].forEach(function(ev){
     window.addEventListener(ev, wake, {passive:true});
