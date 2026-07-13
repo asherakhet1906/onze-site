@@ -14,6 +14,10 @@
 <meta property="og:title" content="Collective XI — A proposal for the Seychelles Football Federation">
 <meta property="og:description" content="A cooperative of small football federations — pooling resources, expertise and opportunity.">
 <meta property="og:image" content="https://www.onzesite.com/assets/og/og-collective-xi.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="Collective XI — a proposal for the Seychelles Football Federation">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/og/favicon-cxi.png">
 <link rel="apple-touch-icon" href="assets/og/apple-touch-cxi.png">
@@ -150,6 +154,11 @@ html.from-onze .arrival-cover{display:block;animation:arrival-fade .6s ease .15s
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   opacity:0;animation:hero-video-in .9s ease-in-out 4.3s both;
 }
+/* portrait crops the 16:9 frame to a ~26%-wide band — the flag boy stands at ~65% of the frame,
+   so default centering left him hanging off the right edge. 70% puts him mid-screen. */
+@media (orientation:portrait){
+  .hero-video{object-position:70% 50%}
+}
 @keyframes hero-video-in{from{opacity:0}to{opacity:1}}
 .hero-slides::after{
   content:"";position:absolute;inset:0;
@@ -246,6 +255,12 @@ html.from-onze .arrival-cover{display:block;animation:arrival-fade .6s ease .15s
 .deck-header-link{display:flex;align-items:center;border-radius:17px}
 .deck-header-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .deck-header-logo{height:16px;width:auto;display:block}
+.deck-header-logo-icon{display:none;height:18px;width:auto}
+@media (max-width:640px){
+  .deck-header{padding:0 8px}
+  .deck-header-logo{display:none}
+  .deck-header-logo-icon{display:block}
+}
 
 @media (prefers-reduced-motion:reduce){
   .icon-flash{animation:none!important;opacity:0!important}
@@ -268,6 +283,12 @@ html.from-onze .arrival-cover{display:block;animation:arrival-fade .6s ease .15s
   position:absolute;inset:0;z-index:0;
   background-image:url('assets/imagery/optimized/slide1-hero-bright.webp');
   background-size:cover;background-position:56% 34%;
+}
+/* portrait: the sitting boy is at ~65% of the frame; 56% cropped him to feet-and-ball. KEEP IN
+   LOCKSTEP with the shader's updateCover() portrait posX — the canvas and this fallback must
+   frame identically or the crossfade jumps. */
+@media (orientation:portrait){
+  .slide1-bg{background-position:70% 34%}
 }
 .slide1-bg::after{
   content:"";position:absolute;inset:0;
@@ -1133,6 +1154,19 @@ html:not(.js) .s4-dlabel{opacity:1}
    (opacity/visibility) are still stamped on unvisited slides — !important is the only way CSS
    can outrank an inline style, which is exactly what's needed here. Then re-hide the few
    stacked/decorative layers the broad stroke would wrongly expose. */
+/* dvh pass (mobile "loose scroll" fix): 100vh includes the space behind mobile browser chrome,
+   so every slide ran taller than the visible viewport and snap could never sit flush. Each slide
+   keeps its own 100vh declaration as the fallback; this later block upgrades to dvh where
+   supported. #slide8 is special-cased: its desktop 135vh sticky-hold must survive, so it only
+   gets the dvh height at phone widths (where it's a plain one-screen slide anyway). */
+@supports (min-height:100dvh){
+  #slide0,#slide1,#slide2,#slide3,#slide4,#slide5,#slide6,#slide7,#slide9,#slide10,
+  #slide11,#slide12,#slide-crest,.s8-hold{min-height:100dvh}
+  @media (max-width:820px){
+    #slide8{min-height:100dvh}
+  }
+}
+
 @media print{
   [id^=slide], [id^=slide] *{
     opacity:1!important;visibility:visible!important;transform:none!important;
@@ -1193,6 +1227,9 @@ html:not(.js) .s4-dlabel{opacity:1}
        greeting instantly on return visits — no second sit-through of the typewriter) -->
   <a class="deck-header-link" href="index.html" aria-label="Back to the ONZE welcome page" title="Back to the ONZE welcome page">
     <img class="deck-header-logo" src="assets/brand-cxi/logo/horizontal/cxi-horizontal-white.png" alt="Collective XI">
+    <!-- phone widths swap to the square XI icon (see .deck-header-logo-icon) — the full lockup
+         chip ate too much of a 375px screen; the link and its accessible name are unchanged -->
+    <img class="deck-header-logo-icon" src="assets/brand-cxi/logo/icon/cxi-icon-white.png" alt="Collective XI">
   </a>
 </div>
 
@@ -2400,8 +2437,11 @@ function initTicker(){
     gl.viewport(0, 0, canvas.width, canvas.height);
     var sx = 1, sy = 1, canvasAspect = w / h;
     if (canvasAspect > imgAspect) { sy = imgAspect / canvasAspect; } else { sx = canvasAspect / imgAspect; }
+    // 70% in portrait, 56% otherwise — KEEP IN LOCKSTEP with .slide1-bg's media query (the
+    // static fallback underneath must frame identically or the canvas fade-in jumps)
+    var posX = canvasAspect < 1 ? 0.70 : 0.56;
     gl.uniform2f(U.uCoverScale, sx, sy);
-    gl.uniform2f(U.uCoverOffset, (1 - sx) * 0.56, (1 - sy) * (1 - 0.34)); // v runs bottom-up
+    gl.uniform2f(U.uCoverOffset, (1 - sx) * posX, (1 - sy) * (1 - 0.34)); // v runs bottom-up
   }
 
   var img = new Image();

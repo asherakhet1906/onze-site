@@ -14,6 +14,10 @@
 <meta property="og:title" content="ONZE">
 <meta property="og:description" content="ONZE Sports — a boutique football talent management firm. Caribbean roots, Dutch soil.">
 <meta property="og:image" content="https://www.onzesite.com/assets/og/og-onze.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="ONZE Sports">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/og/favicon-onze.png">
 <link rel="apple-touch-icon" href="assets/og/apple-touch-onze.png">
@@ -106,6 +110,13 @@
     .logo-stack img { animation: none; opacity: 0; }
     .logo-stack img.layer-5 { opacity: 1; }
   }
+
+  /* return visits (script adds .skip-intro when sessionStorage says the greeting already played):
+     same instant-settle treatment as reduced motion, because the text renders at t=0 and the
+     center icon flash would otherwise play on top of it */
+  html.skip-intro .icon-stack { display: none; }
+  html.skip-intro .logo-stack img { animation: none; opacity: 0; }
+  html.skip-intro .logo-stack img.layer-5 { opacity: 1; }
 
   .typewriter {
     position: fixed;
@@ -261,7 +272,10 @@
 
   if (reduceMotion || alreadyGreeted) {
     // reduced-motion viewers and RETURNING visitors (e.g. back from the deck) get the greeting
-    // instantly — nobody sits through the 25s typewriter twice.
+    // instantly — nobody sits through the 25s typewriter twice. The skip-intro class also kills
+    // the center icon flash and settles the logo immediately: with the text rendered at t=0,
+    // the still-running ~2.2s icon animation was crossing straight through the greeting.
+    document.documentElement.classList.add('skip-intro');
     renderAllInstant();
   } else {
     var cursor = document.createElement('span');
